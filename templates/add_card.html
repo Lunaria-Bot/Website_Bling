@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head><title>Add Card</title></head>
+<body>
+  <h1>Add Card (All Rarities)</h1>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul>
+        {% for msg in messages %}
+          <li>{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST">
+    <label>Base Name:</label><br>
+    <input type="text" name="base_name" required><br><br>
+
+    <label>Description:</label><br>
+    <textarea name="description" rows="3" cols="40"></textarea><br><br>
+
+    <h3>Images per rarity</h3>
+    Common: <input type="url" name="image_common" required><br>
+    Rare: <input type="url" name="image_rare" required><br>
+    Epic: <input type="url" name="image_epic" required><br>
+    Legendary: <input type="url" name="image_legendary" required><br><br>
+
+    <button type="submit">Add All</button>
+  </form>
+</body>
+</html>
