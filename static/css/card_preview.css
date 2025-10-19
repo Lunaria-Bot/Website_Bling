@@ -1,98 +1,67 @@
-/* ===========================
-   Card Preview Styling
-   =========================== */
-
 /* Container de la carte */
 .preview-card {
   border-radius: 12px;
-  padding: 1rem;
+  padding: 0.5rem;
   background: #2f3136 url("https://www.transparenttextures.com/patterns/asfalt-dark.png");
   background-size: cover;
   color: white;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
   text-align: center;
   box-shadow: 0 8px 20px rgba(0,0,0,0.5);
   transition: all 0.3s ease;
-  aspect-ratio: 3 / 4;   /* 🔹 ratio fixe type carte TCG */
+  aspect-ratio: 3 / 4;   /* ratio fixe type TCG */
   overflow: hidden;
-  position: relative;
 }
 
-/* Zone image */
+/* Zone image = 70% de la carte */
 .preview-image {
-  flex: 1;
+  flex: 0 0 70%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.5rem;
   overflow: hidden;
   border-radius: 8px;
+  margin-bottom: 0.5rem;
 }
 
 /* Image qui remplit la zone sans déborder */
 .preview-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;   /* 🔹 remplit la zone, crop si nécessaire */
-  border-radius: 8px;
+  object-fit: contain;   /* 🔹 garde l’image entière visible */
   transition: transform 0.3s ease;
 }
 
 .preview-image img:hover {
-  transform: scale(1.08);
+  transform: scale(1.05);
 }
 
-/* Titre et description */
+/* Zone texte = 30% de la carte */
 .preview-card h5 {
   font-weight: bold;
-  margin-bottom: 0.5rem;
+  margin: 0.25rem 0;
 }
 
 .preview-card p {
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  margin: 0;
 }
 
-/* Couleurs et glow par rareté */
-.rarity-common .preview-card {
-  border: 2px solid #28a745;
-  box-shadow: 0 0 16px #28a74588;
-}
-
-.rarity-rare .preview-card {
-  border: 2px solid #007bff;
-  box-shadow: 0 0 16px #007bff88;
-}
-
-.rarity-epic .preview-card {
-  border: 2px solid #9b59b6;
-  box-shadow: 0 0 16px #9b59b688;
-}
-
-.rarity-legendary .preview-card {
-  border: 2px solid #ff7f50;
-  box-shadow: 0 0 16px #ff7f5088;
-}
+/* Glow par rareté */
+.rarity-common .preview-card { border: 2px solid #28a745; box-shadow: 0 0 16px #28a74588; }
+.rarity-rare .preview-card { border: 2px solid #007bff; box-shadow: 0 0 16px #007bff88; }
+.rarity-epic .preview-card { border: 2px solid #9b59b6; box-shadow: 0 0 16px #9b59b688; }
+.rarity-legendary .preview-card { border: 2px solid #ff7f50; box-shadow: 0 0 16px #ff7f5088; }
 
 /* Badges custom */
-.bg-purple {
-  background-color: #9b59b6 !important;
-}
-
-.bg-orange {
-  background-color: #ff7f50 !important;
-}
+.bg-purple { background-color: #9b59b6 !important; }
+.bg-orange { background-color: #ff7f50 !important; }
 
 /* Animation d’apparition */
 @keyframes fadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  to { opacity: 1; transform: translateY(0); }
 }
-
 .preview-card {
   opacity: 0;
   transform: translateY(10px);
@@ -103,7 +72,6 @@
 .tab-pane {
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
-
 .tab-pane:not(.show) {
   opacity: 0;
   transform: translateY(10px);
