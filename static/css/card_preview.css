@@ -1,44 +1,104 @@
-/* General preview card styling */
+/* ===========================
+   Card Preview Styling
+   =========================== */
+
+/* Container de la carte */
 .preview-card {
   border-radius: 12px;
   padding: 1rem;
   background: #2f3136;
   color: white;
-  min-height: 350px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   text-align: center;
   box-shadow: 0 8px 20px rgba(0,0,0,0.5);
   transition: all 0.3s ease;
+  aspect-ratio: 3 / 4;        /* 🔹 ratio fixe type carte TCG */
+  overflow: hidden;
 }
 
-/* Image fills box but stays contained */
+/* Zone image */
+.preview-image {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
 .preview-card img {
   width: 100%;
-  height: 220px;
-  object-fit: cover;   /* ensures it fills without stretching */
+  height: 100%;
+  object-fit: cover;          /* 🔹 remplit la zone sans déborder */
   border-radius: 8px;
-  margin-bottom: 0.5rem;
   transition: transform 0.3s ease;
 }
+
 .preview-card img:hover {
   transform: scale(1.05);
 }
 
-/* Rarity colors + glow */
-.rarity-common .preview-card { border: 2px solid #28a745; box-shadow: 0 0 12px #28a74555; }
-.rarity-rare .preview-card { border: 2px solid #007bff; box-shadow: 0 0 12px #007bff55; }
-.rarity-epic .preview-card { border: 2px solid #9b59b6; box-shadow: 0 0 12px #9b59b655; }
-.rarity-legendary .preview-card { border: 2px solid #ff7f50; box-shadow: 0 0 12px #ff7f5055; }
+/* Titre et description */
+.preview-card h5 {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
 
-.bg-purple { background-color: #9b59b6 !important; }
-.bg-orange { background-color: #ff7f50 !important; }
+.preview-card p {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
 
-/* Tab transitions */
+/* Couleurs et glow par rareté */
+.rarity-common .preview-card {
+  border: 2px solid #28a745;
+  box-shadow: 0 0 12px #28a74555;
+}
+
+.rarity-rare .preview-card {
+  border: 2px solid #007bff;
+  box-shadow: 0 0 12px #007bff55;
+}
+
+.rarity-epic .preview-card {
+  border: 2px solid #9b59b6;
+  box-shadow: 0 0 12px #9b59b655;
+}
+
+.rarity-legendary .preview-card {
+  border: 2px solid #ff7f50;
+  box-shadow: 0 0 12px #ff7f5055;
+}
+
+/* Badges custom */
+.bg-purple {
+  background-color: #9b59b6 !important;
+}
+
+.bg-orange {
+  background-color: #ff7f50 !important;
+}
+
+/* Animation d’apparition */
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.preview-card {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInUp 0.5s forwards;
+}
+
+/* Transition douce entre onglets */
 .tab-pane {
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
+
 .tab-pane:not(.show) {
   opacity: 0;
   transform: translateY(10px);
