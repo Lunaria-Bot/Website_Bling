@@ -68,35 +68,74 @@
       </div>
     </div>
 
-    <!-- Live Preview -->
+    <!-- Tabbed Preview -->
     <div class="col-md-6">
       <div class="card bg-dark text-white shadow-lg border-0">
         <div class="card-body">
-          <h4 class="card-title mb-3">👁️ Live Preview</h4>
-          <div class="preview-card common mb-3">
-            <h5 id="title_common">Card (Common) <span class="badge bg-light text-dark">Common</span></h5>
-            <p id="desc_common">Description...</p>
-            <img id="img_common" src="">
-          </div>
-          <div class="preview-card rare mb-3">
-            <h5 id="title_rare">Card (Rare) <span class="badge bg-primary">Rare</span></h5>
-            <p id="desc_rare">Description...</p>
-            <img id="img_rare" src="">
-          </div>
-          <div class="preview-card epic mb-3">
-            <h5 id="title_epic">Card (Epic) <span class="badge bg-purple">Epic</span></h5>
-            <p id="desc_epic">Description...</p>
-            <img id="img_epic" src="">
-          </div>
-          <div class="preview-card legendary">
-            <h5 id="title_legendary">Card (Legendary) <span class="badge bg-warning text-dark">Legendary</span></h5>
-            <p id="desc_legendary">Description...</p>
-            <img id="img_legendary" src="">
+          <h4 class="card-title mb-3">👁️ Preview</h4>
+          <ul class="nav nav-tabs" id="previewTabs" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#preview_common">Common</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#preview_rare">Rare</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#preview_epic">Epic</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#preview_legendary">Legendary</button></li>
+          </ul>
+          <div class="tab-content mt-3">
+            <div class="tab-pane fade show active rarity-common" id="preview_common">
+              <div class="preview-card">
+                <h5 id="title_common">Card (Common) <span class="badge bg-success">Common</span></h5>
+                <p id="desc_common">Description...</p>
+                <img id="img_common" src="">
+              </div>
+            </div>
+            <div class="tab-pane fade rarity-rare" id="preview_rare">
+              <div class="preview-card">
+                <h5 id="title_rare">Card (Rare) <span class="badge bg-primary">Rare</span></h5>
+                <p id="desc_rare">Description...</p>
+                <img id="img_rare" src="">
+              </div>
+            </div>
+            <div class="tab-pane fade rarity-epic" id="preview_epic">
+              <div class="preview-card">
+                <h5 id="title_epic">Card (Epic) <span class="badge bg-purple">Epic</span></h5>
+                <p id="desc_epic">Description...</p>
+                <img id="img_epic" src="">
+              </div>
+            </div>
+            <div class="tab-pane fade rarity-legendary" id="preview_legendary">
+              <div class="preview-card">
+                <h5 id="title_legendary">Card (Legendary) <span class="badge bg-orange text-dark">Legendary</span></h5>
+                <p id="desc_legendary">Description...</p>
+                <img id="img_legendary" src="">
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block head %}
+<style>
+  .preview-card {
+    border-radius: 8px;
+    padding: 1rem;
+    background: #2f3136;
+    color: white;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeInUp 0.5s forwards;
+  }
+  @keyframes fadeInUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .rarity-common .preview-card { border-left: 6px solid #28a745; } /* green */
+  .rarity-rare .preview-card { border-left: 6px solid #007bff; }   /* blue */
+  .rarity-epic .preview-card { border-left: 6px solid #9b59b6; }   /* purple */
+  .rarity-legendary .preview-card { border-left: 6px solid #ff7f50; } /* orange */
+  .bg-purple { background-color: #9b59b6 !important; }
+  .bg-orange { background-color: #ff7f50 !important; }
+</style>
 {% endblock %}
 
 {% block scripts %}
@@ -141,5 +180,8 @@
       if (!id) return;
       window.location.href = `/edit/${id}`;
     }
+
+    // Initial preview on load (utile si des valeurs sont déjà présentes)
+    window.addEventListener("DOMContentLoaded", updatePreview);
   </script>
 {% endblock %}
