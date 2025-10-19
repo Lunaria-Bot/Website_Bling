@@ -4,7 +4,7 @@ import asyncpg
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "supersecret")  # session signing
+app.secret_key = os.getenv("SECRET_KEY", "supersecret")
 
 loop = asyncio.get_event_loop()
 db_pool = None
@@ -71,6 +71,37 @@ def add_card():
         return redirect(url_for("add_card"))
 
     return render_template("add_card.html")
+
+# --- History page with filters ---
+@app.route("/history")
+def history():
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+
+    rarity_filter = request.args.get("rarity")
+    search = request.args.get("search")
+
+    async def fetch_cards():
+        async with db_pool.acquire() as conn:
+            query = """
+                SELECT base_name, name, rarity, potential, image_url, description, created_at
+                FROM cards
+            """
+            conditions = []
+            params = []
+            if rarity_filter and rarity_filter != "all":
+                conditions.append("rarity = $%d" % (len(params)+1))
+                params.append(rarity_filter)
+            if search:
+                conditions.append("base_name ILIKE $%d" % (len(params)+1))
+                params.append(f"%{search}%")
+            if conditions:
+                query += " WHERE " + " AND ".join(conditions)
+            query += " ORDER BY created_at DESC LIMIT 50"
+            return await conn.fetch(query, *params)
+
+    cards = loop.run_until_complete(fetch_cards())
+    return render_template("history.html", cards=cards, rarity_filter=rarity_filter, search=search)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
