@@ -16,6 +16,11 @@
       max-height: 120px;
       border-radius: 4px;
     }
+    .id-badge {
+      font-weight: bold;
+      color: #aaa;
+      margin-right: 0.5rem;
+    }
   </style>
 </head>
 <body class="container py-4">
@@ -47,9 +52,20 @@
         <img src="{{ c.image_url }}" alt="{{ c.name }}">
       </div>
       <div class="col-md-7">
-        <h5>{{ c.name }} <small class="text-muted">({{ c.rarity|capitalize }}, ⭐{{ c.potential }})</small></h5>
+        <h5>
+          <span class="id-badge">#{{ c.id }}</span>
+          {{ c.name }}
+          <small class="text-muted">({{ c.rarity|capitalize }}, ⭐{{ c.potential }})</small>
+        </h5>
         <p>{{ c.description }}</p>
         <small>Added: {{ c.created_at }}</small>
       </div>
       <div class="col-md-2 text-end">
         <a href="{{ url_for('edit_card', card_id=c.id) }}" class="btn btn-sm btn-warning">Edit</a>
+      </div>
+    </div>
+  {% else %}
+    <p>No cards found.</p>
+  {% endfor %}
+</body>
+</html>
