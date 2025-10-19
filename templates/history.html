@@ -1,11 +1,89 @@
 {% extends "base.html" %}
 {% block title %}Card History{% endblock %}
 
+{% block head %}
+<style>
+  /* Container global */
+  .card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* Ligne de carte */
+  .card-row {
+    display: flex;
+    align-items: stretch;
+    background: #1e1f23;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card-row:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.6);
+  }
+
+  /* Image */
+  .card-row img {
+    width: 100%;
+    height: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-right: 1px solid #2c2d31;
+  }
+
+  /* Contenu */
+  .card-content {
+    flex: 1;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .card-content h5 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  .card-content p {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+    color: #ccc;
+  }
+
+  .card-content small {
+    color: #888;
+  }
+
+  /* Badge ID */
+  .id-badge {
+    background: #444;
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    margin-right: 0.5rem;
+  }
+
+  /* Bouton Edit */
+  .card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 1rem;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
   <h1 class="mb-4 text-center page-title">Recently Added Cards</h1>
 
   <!-- Filters -->
-  <form method="get" class="row mb-4">
+  <form method="get" class="row mb-4 g-2">
     <div class="col-md-3">
       <select name="rarity" class="form-select">
         <option value="all" {% if rarity_filter == "all" or not rarity_filter %}selected{% endif %}>All Rarities</option>
@@ -19,29 +97,31 @@
       <input type="text" name="search" class="form-control" placeholder="Search by base name" value="{{ search or '' }}">
     </div>
     <div class="col-md-2">
-      <button type="submit" class="btn btn-primary">Filter</button>
+      <button type="submit" class="btn btn-primary w-100">Filter</button>
     </div>
   </form>
 
-  {% for c in cards %}
-    <div class="card-row row" style="animation-delay: {{ loop.index0 * 0.1 }}s">
-      <div class="col-md-3">
-        <img src="{{ c.image_url }}" alt="{{ c.name }}">
+  <div class="card-list">
+    {% for c in cards %}
+      <div class="card-row">
+        <div class="col-md-3 p-0">
+          <img src="{{ c.image_url }}" alt="{{ c.name }}">
+        </div>
+        <div class="col-md-7 card-content">
+          <h5>
+            <span class="id-badge">#{{ c.id }}</span>
+            {{ c.name }}
+            <small class="text-muted">({{ c.rarity|capitalize }}, ⭐{{ c.potential }})</small>
+          </h5>
+          <p>{{ c.description }}</p>
+          <small>Added: {{ c.created_at }}</small>
+        </div>
+        <div class="col-md-2 card-actions">
+          <a href="{{ url_for('edit_card', card_id=c.id) }}" class="btn btn-sm btn-warning">Edit</a>
+        </div>
       </div>
-      <div class="col-md-7">
-        <h5>
-          <span class="id-badge">#{{ c.id }}</span>
-          {{ c.name }}
-          <small class="text-muted">({{ c.rarity|capitalize }}, ⭐{{ c.potential }})</small>
-        </h5>
-        <p>{{ c.description }}</p>
-        <small>Added: {{ c.created_at }}</small>
-      </div>
-      <div class="col-md-2 text-end">
-        <a href="{{ url_for('edit_card', card_id=c.id) }}" class="btn btn-sm btn-warning">Edit</a>
-      </div>
-    </div>
-  {% else %}
-    <p>No cards found.</p>
-  {% endfor %}
+    {% else %}
+      <p class="text-center text-muted">No cards found.</p>
+    {% endfor %}
+  </div>
 {% endblock %}
