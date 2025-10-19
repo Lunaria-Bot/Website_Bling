@@ -2,7 +2,7 @@
 {% block title %}Add Card{% endblock %}
 
 {% block head %}
-  <!-- Link to external CSS -->
+  <!-- Lien vers le CSS externe -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/card_preview.css') }}">
 {% endblock %}
 
@@ -89,28 +89,28 @@
               <div class="preview-card">
                 <h5 id="title_common">Card (Common) <span class="badge bg-success">Common</span></h5>
                 <p id="desc_common">Description...</p>
-                <img id="img_common" src="">
+                <div class="preview-image"><img id="img_common" src=""></div>
               </div>
             </div>
             <div class="tab-pane fade rarity-rare" id="preview_rare">
               <div class="preview-card">
                 <h5 id="title_rare">Card (Rare) <span class="badge bg-primary">Rare</span></h5>
                 <p id="desc_rare">Description...</p>
-                <img id="img_rare" src="">
+                <div class="preview-image"><img id="img_rare" src=""></div>
               </div>
             </div>
             <div class="tab-pane fade rarity-epic" id="preview_epic">
               <div class="preview-card">
                 <h5 id="title_epic">Card (Epic) <span class="badge bg-purple">Epic</span></h5>
                 <p id="desc_epic">Description...</p>
-                <img id="img_epic" src="">
+                <div class="preview-image"><img id="img_epic" src=""></div>
               </div>
             </div>
             <div class="tab-pane fade rarity-legendary" id="preview_legendary">
               <div class="preview-card">
                 <h5 id="title_legendary">Card (Legendary) <span class="badge bg-orange text-dark">Legendary</span></h5>
                 <p id="desc_legendary">Description...</p>
-                <img id="img_legendary" src="">
+                <div class="preview-image"><img id="img_legendary" src=""></div>
               </div>
             </div>
           </div>
@@ -167,6 +167,3 @@
     window.addEventListener("DOMContentLoaded", updatePreview);
   </script>
 {% endblock %}
-
-
-      document.getElementById("title_common").innerText = base + "
