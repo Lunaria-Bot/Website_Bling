@@ -6,7 +6,9 @@
 .preview-card {
   border-radius: 12px;
   padding: 1rem;
-  background: #2f3136;
+  background: #2f3136 url("https://www.transparenttextures.com/patterns/asfalt-dark.png"); 
+  /* 🔹 fond texturé subtil */
+  background-size: cover;
   color: white;
   display: flex;
   flex-direction: column;
@@ -14,8 +16,9 @@
   text-align: center;
   box-shadow: 0 8px 20px rgba(0,0,0,0.5);
   transition: all 0.3s ease;
-  aspect-ratio: 3 / 4;        /* 🔹 ratio fixe type carte TCG */
+  aspect-ratio: 3 / 4;        /* ratio fixe type carte TCG */
   overflow: hidden;
+  position: relative;
 }
 
 /* Zone image */
@@ -30,13 +33,14 @@
 .preview-card img {
   width: 100%;
   height: 100%;
-  object-fit: cover;          /* 🔹 remplit la zone sans déborder */
+  max-height: 340px;          /* 🔹 agrandi la zone image */
+  object-fit: cover;          /* remplit la zone sans déborder */
   border-radius: 8px;
   transition: transform 0.3s ease;
 }
 
 .preview-card img:hover {
-  transform: scale(1.05);
+  transform: scale(1.08);     /* zoom plus marqué au survol */
 }
 
 /* Titre et description */
@@ -53,22 +57,22 @@
 /* Couleurs et glow par rareté */
 .rarity-common .preview-card {
   border: 2px solid #28a745;
-  box-shadow: 0 0 12px #28a74555;
+  box-shadow: 0 0 16px #28a74588;
 }
 
 .rarity-rare .preview-card {
   border: 2px solid #007bff;
-  box-shadow: 0 0 12px #007bff55;
+  box-shadow: 0 0 16px #007bff88;
 }
 
 .rarity-epic .preview-card {
   border: 2px solid #9b59b6;
-  box-shadow: 0 0 12px #9b59b655;
+  box-shadow: 0 0 16px #9b59b688;
 }
 
 .rarity-legendary .preview-card {
   border: 2px solid #ff7f50;
-  box-shadow: 0 0 12px #ff7f5055;
+  box-shadow: 0 0 16px #ff7f5088;
 }
 
 /* Badges custom */
