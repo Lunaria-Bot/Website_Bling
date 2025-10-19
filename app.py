@@ -1,10 +1,10 @@
 import os
 import asyncio
 import asyncpg
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "supersecret")
+app.secret_key = os.getenv("SECRET_KEY", "supersecret")  # session signing
 
 loop = asyncio.get_event_loop()
 db_pool = None
@@ -12,10 +12,8 @@ db_pool = None
 async def init_db():
     db_url = os.getenv("DATABASE_URL")
     if db_url:
-        # Railway Postgres
         return await asyncpg.create_pool(dsn=db_url, ssl="require")
     else:
-        # Local fallback
         return await asyncpg.create_pool(
             user="postgres",
             password="yourpassword",
@@ -26,8 +24,31 @@ async def init_db():
 
 db_pool = loop.run_until_complete(init_db())
 
+# --- Authentication ---
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        password = request.form["password"]
+        if password == os.getenv("ADMIN_PASSWORD", "changeme"):
+            session["logged_in"] = True
+            flash("✅ Logged in successfully!")
+            return redirect(url_for("add_card"))
+        else:
+            flash("❌ Wrong password")
+    return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("Logged out.")
+    return redirect(url_for("login"))
+
+# --- Card form ---
 @app.route("/", methods=["GET", "POST"])
 def add_card():
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+
     if request.method == "POST":
         base_name = request.form["base_name"]
         description = request.form["description"]
