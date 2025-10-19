@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{{ url_for('admin_dashboard') }}">Admin Panel</a>
+      <div class="d-flex">
+        <span class="navbar-text text-white me-3">
+          Logged in as <strong>{{ user }}</strong>
+        </span>
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-5">
+    <h2 class="mb-4">Dashboard</h2>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert alert-info">{{ messages[0] }}</div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title">➕ Add Card</h5>
+            <p class="card-text">Insert new cards into the database with all rarities.</p>
+            <a href="{{ url_for('add_card') }}" class="btn btn-primary">Go</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title">📜 Card History</h5>
+            <p class="card-text">Browse and filter recently added cards.</p>
+            <a href="{{ url_for('history') }}" class="btn btn-primary">Go</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title">⚙️ Manage</h5>
+            <p class="card-text">Future section for managing users, admins, or settings.</p>
+            <a href="#" class="btn btn-secondary disabled">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
