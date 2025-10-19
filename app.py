@@ -84,7 +84,7 @@ def history():
     async def fetch_cards():
         async with db_pool.acquire() as conn:
             query = """
-                SELECT base_name, name, rarity, potential, image_url, description, created_at
+                SELECT id, base_name, name, rarity, potential, image_url, description, created_at
                 FROM cards
             """
             conditions = []
@@ -102,6 +102,46 @@ def history():
 
     cards = loop.run_until_complete(fetch_cards())
     return render_template("history.html", cards=cards, rarity_filter=rarity_filter, search=search)
+
+# --- Edit card ---
+@app.route("/edit/<int:card_id>", methods=["GET", "POST"])
+def edit_card(card_id):
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+
+    async def fetch_card():
+        async with db_pool.acquire() as conn:
+            return await conn.fetchrow(
+                "SELECT id, base_name, name, rarity, potential, image_url, description FROM cards WHERE id=$1",
+                card_id
+            )
+
+    card = loop.run_until_complete(fetch_card())
+    if not card:
+        flash("❌ Card not found")
+        return redirect(url_for("history"))
+
+    if request.method == "POST":
+        base_name = request.form["base_name"]
+        name = request.form["name"]
+        rarity = request.form["rarity"]
+        potential = int(request.form["potential"])
+        image_url = request.form["image_url"]
+        description = request.form["description"]
+
+        async def update_card():
+            async with db_pool.acquire() as conn:
+                await conn.execute("""
+                    UPDATE cards
+                    SET base_name=$1, name=$2, rarity=$3, potential=$4, image_url=$5, description=$6
+                    WHERE id=$7
+                """, base_name, name, rarity, potential, image_url, description, card_id)
+
+        loop.run_until_complete(update_card())
+        flash("✅ Card updated successfully!")
+        return redirect(url_for("history"))
+
+    return render_template("edit_card.html", card=card)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
