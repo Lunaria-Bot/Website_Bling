@@ -1,32 +1,128 @@
 <!DOCTYPE html>
 <html>
-<head><title>Add Card</title></head>
-<body>
-  <h1>Add Card (All Rarities)</h1>
+<head>
+  <title>Add Card</title>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    body { background: #202225; color: #fff; }
+    .preview-card {
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: #2f3136;
+      color: white;
+    }
+    .preview-card img {
+      max-width: 100%;
+      border-radius: 4px;
+    }
+    .common { border-left: 6px solid lightgray; }
+    .rare { border-left: 6px solid #3498db; }
+    .epic { border-left: 6px solid #9b59b6; }
+    .legendary { border-left: 6px solid gold; }
+  </style>
+</head>
+<body class="container py-4">
+  <h1 class="mb-4">Add Card (All Rarities)</h1>
   {% with messages = get_flashed_messages() %}
     {% if messages %}
-      <ul>
-        {% for msg in messages %}
-          <li>{{ msg }}</li>
-        {% endfor %}
-      </ul>
+      <div class="alert alert-success">{{ messages[0] }}</div>
     {% endif %}
   {% endwith %}
 
-  <form method="POST">
-    <label>Base Name:</label><br>
-    <input type="text" name="base_name" required><br><br>
+  <div class="row">
+    <!-- Form -->
+    <div class="col-md-6">
+      <form method="POST" id="cardForm">
+        <div class="mb-3">
+          <label class="form-label">Base Name</label>
+          <input type="text" class="form-control" name="base_name" id="base_name" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" name="description" id="description"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Common Image URL</label>
+          <input type="url" class="form-control" name="image_common" id="image_common" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Rare Image URL</label>
+          <input type="url" class="form-control" name="image_rare" id="image_rare" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Epic Image URL</label>
+          <input type="url" class="form-control" name="image_epic" id="image_epic" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Legendary Image URL</label>
+          <input type="url" class="form-control" name="image_legendary" id="image_legendary" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Add All</button>
+      </form>
+    </div>
 
-    <label>Description:</label><br>
-    <textarea name="description" rows="3" cols="40"></textarea><br><br>
+    <!-- Preview -->
+    <div class="col-md-6">
+      <h4>Preview</h4>
+      <div id="previews">
+        <div class="preview-card common">
+          <h5 id="title_common">Card (Common)</h5>
+          <p id="desc_common">Description...</p>
+          <img id="img_common" src="">
+        </div>
+        <div class="preview-card rare">
+          <h5 id="title_rare">Card (Rare)</h5>
+          <p id="desc_rare">Description...</p>
+          <img id="img_rare" src="">
+        </div>
+        <div class="preview-card epic">
+          <h5 id="title_epic">Card (Epic)</h5>
+          <p id="desc_epic">Description...</p>
+          <img id="img_epic" src="">
+        </div>
+        <div class="preview-card legendary">
+          <h5 id="title_legendary">Card (Legendary)</h5>
+          <p id="desc_legendary">Description...</p>
+          <img id="img_legendary" src="">
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <h3>Images per rarity</h3>
-    Common: <input type="url" name="image_common" required><br>
-    Rare: <input type="url" name="image_rare" required><br>
-    Epic: <input type="url" name="image_epic" required><br>
-    Legendary: <input type="url" name="image_legendary" required><br><br>
+  <script>
+    const baseName = document.getElementById("base_name");
+    const desc = document.getElementById("description");
+    const imgCommon = document.getElementById("image_common");
+    const imgRare = document.getElementById("image_rare");
+    const imgEpic = document.getElementById("image_epic");
+    const imgLegendary = document.getElementById("image_legendary");
 
-    <button type="submit">Add All</button>
-  </form>
+    function updatePreview() {
+      const base = baseName.value || "Card";
+      const description = desc.value || "Description...";
+
+      document.getElementById("title_common").innerText = base + " (Common)";
+      document.getElementById("desc_common").innerText = description;
+      document.getElementById("img_common").src = imgCommon.value;
+
+      document.getElementById("title_rare").innerText = base + " (Rare)";
+      document.getElementById("desc_rare").innerText = description;
+      document.getElementById("img_rare").src = imgRare.value;
+
+      document.getElementById("title_epic").innerText = base + " (Epic)";
+      document.getElementById("desc_epic").innerText = description;
+      document.getElementById("img_epic").src = imgEpic.value;
+
+      document.getElementById("title_legendary").innerText = base + " (Legendary)";
+      document.getElementById("desc_legendary").innerText = description;
+      document.getElementById("img_legendary").src = imgLegendary.value;
+    }
+
+    [baseName, desc, imgCommon, imgRare, imgEpic, imgLegendary].forEach(el => {
+      el.addEventListener("input", updatePreview);
+    });
+  </script>
 </body>
 </html>
