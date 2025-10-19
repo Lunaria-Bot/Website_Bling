@@ -4,7 +4,7 @@ import asyncpg
 from flask import Flask, render_template, request, redirect, url_for, flash
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "supersecret")  # change in Railway vars
+app.secret_key = os.getenv("SECRET_KEY", "supersecret")
 
 loop = asyncio.get_event_loop()
 db_pool = None
@@ -12,7 +12,7 @@ db_pool = None
 async def init_db():
     db_url = os.getenv("DATABASE_URL")
     if db_url:
-        # Railway provides DATABASE_URL
+        # Railway Postgres
         return await asyncpg.create_pool(dsn=db_url, ssl="require")
     else:
         # Local fallback
@@ -24,7 +24,6 @@ async def init_db():
             port=5432
         )
 
-# Initialize pool at startup
 db_pool = loop.run_until_complete(init_db())
 
 @app.route("/", methods=["GET", "POST"])
