@@ -11,22 +11,6 @@
       min-height: 100vh;
       color: #fff;
     }
-    .card {
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeInUp 0.6s forwards;
-    }
-    .card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-    }
-    @keyframes fadeInUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
     .navbar {
       background: rgba(0,0,0,0.7);
       backdrop-filter: blur(6px);
@@ -37,6 +21,21 @@
     @keyframes glow {
       from { text-shadow: 0 0 5px #fff, 0 0 10px #00f, 0 0 20px #00f; }
       to   { text-shadow: 0 0 10px #fff, 0 0 20px #0ff, 0 0 30px #0ff; }
+    }
+    .stat-card {
+      background: #2f3136;
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      transition: transform 0.3s ease;
+    }
+    .stat-card:hover {
+      transform: translateY(-6px) scale(1.02);
+    }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -56,12 +55,42 @@
   <div class="container py-5">
     <h2 class="mb-5 text-center dashboard-title">Welcome to the Control Center</h2>
 
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="alert alert-info text-center">{{ messages[0] }}</div>
-      {% endif %}
-    {% endwith %}
+    <!-- Stats Row -->
+    <div class="row g-4 mb-5">
+      <div class="col-md-3">
+        <div class="stat-card">
+          <div class="stat-number" id="totalCards">0</div>
+          <div>Total Cards</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card">
+          <div class="stat-number" id="commonCards">0</div>
+          <div>Common</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card">
+          <div class="stat-number" id="rareCards">0</div>
+          <div>Rare</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card">
+          <div class="stat-number" id="epicCards">0</div>
+          <div>Epic</div>
+        </div>
+      </div>
+    </div>
 
+    <!-- Chart -->
+    <div class="row mb-5">
+      <div class="col-md-6 offset-md-3">
+        <canvas id="rarityChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Links -->
     <div class="row g-4">
       <div class="col-md-4">
         <div class="card bg-dark text-white shadow-sm h-100">
@@ -72,9 +101,8 @@
           </div>
         </div>
       </div>
-
       <div class="col-md-4">
-        <div class="card bg-dark text-white shadow-sm h-100" style="animation-delay:0.2s">
+        <div class="card bg-dark text-white shadow-sm h-100">
           <div class="card-body text-center">
             <h5 class="card-title">📜 Card History</h5>
             <p class="card-text">Browse and filter recently added cards.</p>
@@ -82,9 +110,8 @@
           </div>
         </div>
       </div>
-
       <div class="col-md-4">
-        <div class="card bg-dark text-white shadow-sm h-100" style="animation-delay:0.4s">
+        <div class="card bg-dark text-white shadow-sm h-100">
           <div class="card-body text-center">
             <h5 class="card-title">⚙️ Manage</h5>
             <p class="card-text">Future section for managing users, admins, or settings.</p>
@@ -95,6 +122,57 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Example stats (replace with values from backend if desired)
+    const stats = {
+      total: 120,
+      common: 60,
+      rare: 30,
+      epic: 20,
+      legendary: 10
+    };
+
+    // Animate counters
+    function animateValue(id, start, end, duration) {
+      const obj = document.getElementById(id);
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        obj.innerText = Math.floor(progress * (end - start) + start);
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        }
+      };
+      window.requestAnimationFrame(step);
+    }
+
+    animateValue("totalCards", 0, stats.total, 1500);
+    animateValue("commonCards", 0, stats.common, 1500);
+    animateValue("rareCards", 0, stats.rare, 1500);
+    animateValue("epicCards", 0, stats.epic, 1500);
+
+    // Rarity distribution chart
+    const ctx = document.getElementById('rarityChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Common', 'Rare', 'Epic', 'Legendary'],
+        datasets: [{
+          data: [stats.common, stats.rare, stats.epic, stats.legendary],
+          backgroundColor: ['lightgray', '#3498db', '#9b59b6', 'gold']
+        }]
+      },
+      options: {
+        plugins: {
+          legend: {
+            labels: { color: '#fff' }
+          }
+        }
+      }
+    });
+  </script>
 </body>
 </html>
