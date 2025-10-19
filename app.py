@@ -112,13 +112,16 @@ def edit_card(card_id):
     async def fetch_card():
         async with db_pool.acquire() as conn:
             return await conn.fetchrow(
-                "SELECT id, base_name, name, rarity, potential, image_url, description FROM cards WHERE id=$1",
+                """
+                SELECT id, base_name, name, rarity, potential, image_url, description
+                FROM cards WHERE id=$1
+                """,
                 card_id
             )
 
     card = loop.run_until_complete(fetch_card())
     if not card:
-        flash("❌ Card not found")
+        flash(f"❌ Card with ID {card_id} not found")
         return redirect(url_for("history"))
 
     if request.method == "POST":
@@ -138,7 +141,7 @@ def edit_card(card_id):
                 """, base_name, name, rarity, potential, image_url, description, card_id)
 
         loop.run_until_complete(update_card())
-        flash("✅ Card updated successfully!")
+        flash(f"✅ Card #{card_id} updated successfully!")
         return redirect(url_for("history"))
 
     return render_template("edit_card.html", card=card)
