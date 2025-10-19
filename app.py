@@ -2,6 +2,7 @@ import os
 import asyncio
 import asyncpg
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+from werkzeug.security import check_password_hash
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "supersecret")
@@ -28,13 +29,26 @@ db_pool = loop.run_until_complete(init_db())
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
+        username = request.form["username"]
         password = request.form["password"]
-        if password == os.getenv("ADMIN_PASSWORD", "changeme"):
-            session["logged_in"] = True
+
+        async def fetch_admin():
+            async with db_pool.acquire() as conn:
+                return await conn.fetchrow(
+                    "SELECT id, username, password_hash, role FROM admins WHERE username=$1",
+                    username
+                )
+
+        admin = loop.run_until_complete(fetch_admin())
+        if admin and check_password_hash(admin["password_hash"], password):
+            session["user_id"] = admin["id"]
+            session["username"] = admin["username"]
+            session["role"] = admin["role"]
             flash("✅ Logged in successfully!")
-            return redirect(url_for("add_card"))
+            return redirect(url_for("admin_dashboard"))
         else:
-            flash("❌ Wrong password")
+            flash("❌ Invalid credentials")
+
     return render_template("login.html")
 
 @app.route("/logout")
@@ -43,10 +57,16 @@ def logout():
     flash("Logged out.")
     return redirect(url_for("login"))
 
+@app.route("/admin")
+def admin_dashboard():
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+    return render_template("admin_dashboard.html", user=session.get("username"))
+
 # --- Card form ---
 @app.route("/", methods=["GET", "POST"])
 def add_card():
-    if not session.get("logged_in"):
+    if not session.get("user_id"):
         return redirect(url_for("login"))
 
     if request.method == "POST":
@@ -75,7 +95,7 @@ def add_card():
 # --- History page with filters ---
 @app.route("/history")
 def history():
-    if not session.get("logged_in"):
+    if not session.get("user_id"):
         return redirect(url_for("login"))
 
     rarity_filter = request.args.get("rarity")
@@ -106,7 +126,7 @@ def history():
 # --- Edit card ---
 @app.route("/edit/<int:card_id>", methods=["GET", "POST"])
 def edit_card(card_id):
-    if not session.get("logged_in"):
+    if not session.get("user_id"):
         return redirect(url_for("login"))
 
     async def fetch_card():
