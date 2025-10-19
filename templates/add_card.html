@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Add Card{% endblock %}
 
+{% block head %}
+  <!-- Link to external CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/card_preview.css') }}">
+{% endblock %}
+
 {% block content %}
   <h1 class="mb-4 page-title">Add Card (All Rarities)</h1>
 
@@ -115,29 +120,6 @@
   </div>
 {% endblock %}
 
-{% block head %}
-<style>
-  .preview-card {
-    border-radius: 8px;
-    padding: 1rem;
-    background: #2f3136;
-    color: white;
-    opacity: 0;
-    transform: translateY(10px);
-    animation: fadeInUp 0.5s forwards;
-  }
-  @keyframes fadeInUp {
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .rarity-common .preview-card { border-left: 6px solid #28a745; } /* green */
-  .rarity-rare .preview-card { border-left: 6px solid #007bff; }   /* blue */
-  .rarity-epic .preview-card { border-left: 6px solid #9b59b6; }   /* purple */
-  .rarity-legendary .preview-card { border-left: 6px solid #ff7f50; } /* orange */
-  .bg-purple { background-color: #9b59b6 !important; }
-  .bg-orange { background-color: #ff7f50 !important; }
-</style>
-{% endblock %}
-
 {% block scripts %}
   <script>
     // Live preview wiring
@@ -181,7 +163,10 @@
       window.location.href = `/edit/${id}`;
     }
 
-    // Initial preview on load (utile si des valeurs sont déjà présentes)
+    // Initialize preview on page load
     window.addEventListener("DOMContentLoaded", updatePreview);
   </script>
 {% endblock %}
+
+
+      document.getElementById("title_common").innerText = base + "
