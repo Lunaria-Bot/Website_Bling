@@ -61,7 +61,38 @@ def logout():
 def admin_dashboard():
     if not session.get("user_id"):
         return redirect(url_for("login"))
-    return render_template("admin_dashboard.html", user=session.get("username"))
+
+    async def fetch_stats_and_recent():
+        async with db_pool.acquire() as conn:
+            total = await conn.fetchval("SELECT COUNT(*) FROM cards")
+            common = await conn.fetchval("SELECT COUNT(*) FROM cards WHERE rarity='common'")
+            rare = await conn.fetchval("SELECT COUNT(*) FROM cards WHERE rarity='rare'")
+            epic = await conn.fetchval("SELECT COUNT(*) FROM cards WHERE rarity='epic'")
+            legendary = await conn.fetchval("SELECT COUNT(*) FROM cards WHERE rarity='legendary'")
+            recent = await conn.fetch(
+                """
+                SELECT id, name, rarity, potential, created_at
+                FROM cards
+                ORDER BY created_at DESC
+                LIMIT 5
+                """
+            )
+            return {
+                "total": total,
+                "common": common,
+                "rare": rare,
+                "epic": epic,
+                "legendary": legendary,
+                "recent": recent
+            }
+
+    stats = loop.run_until_complete(fetch_stats_and_recent())
+    return render_template(
+        "admin_dashboard.html",
+        user=session.get("username"),
+        stats=stats
+    )
+
 
 # --- Card form ---
 @app.route("/", methods=["GET", "POST"])
