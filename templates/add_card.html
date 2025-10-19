@@ -2,9 +2,7 @@
 {% block title %}Add Card{% endblock %}
 
 {% block content %}
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h1 class="mb-0 page-title">Add Card (All Rarities)</h1>
-  </div>
+  <h1 class="mb-4 page-title">Add Card (All Rarities)</h1>
 
   {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -13,89 +11,85 @@
   {% endwith %}
 
   <!-- Quick edit by ID -->
-  <div class="mb-4">
-    <form class="row g-2" onsubmit="goEditById(event)">
-      <div class="col-auto">
-        <label for="editId" class="col-form-label">Quick edit by ID</label>
-      </div>
-      <div class="col-auto">
-        <input type="number" min="1" class="form-control" id="editId" placeholder="Card ID">
-      </div>
-      <div class="col-auto">
-        <button type="submit" class="btn btn-warning">Edit</button>
-      </div>
-      <div class="col-auto">
-        <small class="text-muted">Tip: Find IDs on the History page.</small>
-      </div>
-    </form>
+  <div class="card bg-dark text-white shadow-sm mb-4">
+    <div class="card-body">
+      <form class="row g-2 align-items-center" onsubmit="goEditById(event)">
+        <div class="col-auto">
+          <label for="editId" class="col-form-label">Quick edit by ID</label>
+        </div>
+        <div class="col-auto">
+          <input type="number" min="1" class="form-control" id="editId" placeholder="Card ID">
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-warning">Edit</button>
+        </div>
+        <div class="col-auto">
+          <small class="text-muted">Tip: Find IDs on the History page.</small>
+        </div>
+      </form>
+    </div>
   </div>
 
   <div class="row">
     <!-- Form -->
     <div class="col-md-6">
-      <form method="POST" id="cardForm">
-        <div class="mb-3">
-          <label class="form-label">Base Name</label>
-          <input type="text" class="form-control" name="base_name" id="base_name" required>
+      <div class="card bg-dark text-white shadow-lg border-0 mb-4">
+        <div class="card-body">
+          <h4 class="card-title mb-3">📝 Card Details</h4>
+          <form method="POST" id="cardForm">
+            <div class="mb-3">
+              <label class="form-label">Base Name</label>
+              <input type="text" class="form-control" name="base_name" id="base_name" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" name="description" id="description"></textarea>
+            </div>
+            <h5 class="mt-4 mb-2">Images by Rarity</h5>
+            <div class="mb-3">
+              <label class="form-label">Common Image URL</label>
+              <input type="url" class="form-control" name="image_common" id="image_common" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Rare Image URL</label>
+              <input type="url" class="form-control" name="image_rare" id="image_rare" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Epic Image URL</label>
+              <input type="url" class="form-control" name="image_epic" id="image_epic" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Legendary Image URL</label>
+              <input type="url" class="form-control" name="image_legendary" id="image_legendary" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mt-3">✨ Add All</button>
+          </form>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Description</label>
-          <textarea class="form-control" name="description" id="description"></textarea>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Common Image URL</label>
-          <input type="url" class="form-control" name="image_common" id="image_common" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Rare Image URL</label>
-          <input type="url" class="form-control" name="image_rare" id="image_rare" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Epic Image URL</label>
-          <input type="url" class="form-control" name="image_epic" id="image_epic" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Legendary Image URL</label>
-          <input type="url" class="form-control" name="image_legendary" id="image_legendary" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Add All</button>
-      </form>
+      </div>
     </div>
 
-    <!-- Tabbed Preview -->
+    <!-- Live Preview -->
     <div class="col-md-6">
-      <h4>Preview</h4>
-      <ul class="nav nav-tabs" id="previewTabs" role="tablist">
-        <li class="nav-item"><button class="nav-link active" id="tab-common" data-bs-toggle="tab" data-bs-target="#preview_common" type="button">Common</button></li>
-        <li class="nav-item"><button class="nav-link" id="tab-rare" data-bs-toggle="tab" data-bs-target="#preview_rare" type="button">Rare</button></li>
-        <li class="nav-item"><button class="nav-link" id="tab-epic" data-bs-toggle="tab" data-bs-target="#preview_epic" type="button">Epic</button></li>
-        <li class="nav-item"><button class="nav-link" id="tab-legendary" data-bs-toggle="tab" data-bs-target="#preview_legendary" type="button">Legendary</button></li>
-      </ul>
-      <div class="tab-content">
-        <div class="tab-pane fade show active" id="preview_common">
-          <div class="preview-card common">
-            <h5 id="title_common">Card (Common)</h5>
+      <div class="card bg-dark text-white shadow-lg border-0">
+        <div class="card-body">
+          <h4 class="card-title mb-3">👁️ Live Preview</h4>
+          <div class="preview-card common mb-3">
+            <h5 id="title_common">Card (Common) <span class="badge bg-light text-dark">Common</span></h5>
             <p id="desc_common">Description...</p>
             <img id="img_common" src="">
           </div>
-        </div>
-        <div class="tab-pane fade" id="preview_rare">
-          <div class="preview-card rare">
-            <h5 id="title_rare">Card (Rare)</h5>
+          <div class="preview-card rare mb-3">
+            <h5 id="title_rare">Card (Rare) <span class="badge bg-primary">Rare</span></h5>
             <p id="desc_rare">Description...</p>
             <img id="img_rare" src="">
           </div>
-        </div>
-        <div class="tab-pane fade" id="preview_epic">
-          <div class="preview-card epic">
-            <h5 id="title_epic">Card (Epic)</h5>
+          <div class="preview-card epic mb-3">
+            <h5 id="title_epic">Card (Epic) <span class="badge bg-purple">Epic</span></h5>
             <p id="desc_epic">Description...</p>
             <img id="img_epic" src="">
           </div>
-        </div>
-        <div class="tab-pane fade" id="preview_legendary">
           <div class="preview-card legendary">
-            <h5 id="title_legendary">Card (Legendary)</h5>
+            <h5 id="title_legendary">Card (Legendary) <span class="badge bg-warning text-dark">Legendary</span></h5>
             <p id="desc_legendary">Description...</p>
             <img id="img_legendary" src="">
           </div>
