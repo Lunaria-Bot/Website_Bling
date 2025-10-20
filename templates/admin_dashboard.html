@@ -2,49 +2,49 @@
 {% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
-  <h2 class="mb-5 text-center dashboard-title">Welcome to the Control Center</h2>
+  <h2 class="mb-5 text-center glow-title">🌌 Welcome to Neon Rift Control Center</h2>
 
   <!-- Stats Row -->
-  <div class="row g-4 mb-5">
+  <div class="row g-4 mb-5 text-center">
     <div class="col-md-3">
-      <div class="stat-card">
-        <div class="stat-number" id="totalCards">{{ stats.total }}</div>
+      <div class="glass-card">
+        <h3 class="text-info" id="totalCards">{{ stats.total }}</h3>
         <div>Total Cards</div>
       </div>
     </div>
     <div class="col-md-3">
-      <div class="stat-card">
-        <div class="stat-number" id="commonCards">{{ stats.common }}</div>
-        <div>Common</div>
+      <div class="glass-card">
+        <h3 class="text-primary" id="baseCards">{{ stats.base }}</h3>
+        <div>🟦 Base</div>
       </div>
     </div>
     <div class="col-md-3">
-      <div class="stat-card">
-        <div class="stat-number" id="rareCards">{{ stats.rare }}</div>
-        <div>Rare</div>
+      <div class="glass-card">
+        <h3 class="text-warning" id="awakenedCards">{{ stats.awakened }}</h3>
+        <div>✨ Awakened</div>
       </div>
     </div>
     <div class="col-md-3">
-      <div class="stat-card">
-        <div class="stat-number" id="epicCards">{{ stats.epic }}</div>
-        <div>Epic</div>
+      <div class="glass-card">
+        <h3 class="text-danger" id="eventCards">{{ stats.event }}</h3>
+        <div>🎉 Event</div>
       </div>
     </div>
   </div>
 
   <!-- Chart -->
   <div class="row mb-5">
-    <div class="col-md-6 offset-md-3">
-      <canvas id="rarityChart"></canvas>
+    <div class="col-md-6 offset-md-3 glass-card">
+      <canvas id="formChart"></canvas>
     </div>
   </div>
 
   <!-- Recent Activity -->
-  <h3 class="mb-3">🕒 Recent Activity</h3>
+  <h3 class="mb-3 glow-title">🕒 Recent Cards</h3>
   {% for c in stats.recent %}
-    <div class="recent-card" style="animation-delay: {{ loop.index0 * 0.1 }}s">
-      <strong>#{{ c.id }}</strong> — {{ c.name }}
-      <small class="text-muted">({{ c.rarity|capitalize }}, ⭐{{ c.potential }})</small><br>
+    <div class="glass-card mb-3" style="animation-delay: {{ loop.index0 * 0.1 }}s">
+      <strong>#{{ c.id }}</strong> — {{ c.character_name }}
+      <small class="text-muted">({{ c.form|capitalize }})</small><br>
       <small>Added: {{ c.created_at }}</small>
     </div>
   {% else %}
@@ -54,78 +54,71 @@
   <!-- Links -->
   <div class="row g-4 mt-4">
     <div class="col-md-4">
-      <div class="card bg-dark text-white shadow-sm h-100">
-        <div class="card-body text-center">
-          <h5 class="card-title">➕ Add Card</h5>
-          <p class="card-text">Insert new cards into the database with all rarities.</p>
-          <a href="{{ url_for('add_card') }}" class="btn btn-primary">Go</a>
-        </div>
+      <div class="glass-card text-center h-100">
+        <h5>➕ Add Card</h5>
+        <p>Insert new cards into the database with all forms.</p>
+        <a href="{{ url_for('add_card') }}" class="btn btn-glow">Go</a>
       </div>
     </div>
     <div class="col-md-4">
-      <div class="card bg-dark text-white shadow-sm h-100">
-        <div class="card-body text-center">
-          <h5 class="card-title">📜 Card History</h5>
-          <p class="card-text">Browse and filter recently added cards.</p>
-          <a href="{{ url_for('history') }}" class="btn btn-primary">Go</a>
-        </div>
+      <div class="glass-card text-center h-100">
+        <h5>📜 Card History</h5>
+        <p>Browse and filter recently added cards.</p>
+        <a href="{{ url_for('history') }}" class="btn btn-glow">Go</a>
       </div>
     </div>
     <div class="col-md-4">
-      <div class="card bg-dark text-white shadow-sm h-100">
-        <div class="card-body text-center">
-          <h5 class="card-title">⚙️ Manage</h5>
-          <p class="card-text">Future section for managing users, admins, or settings.</p>
-          <a href="#" class="btn btn-secondary disabled">Coming Soon</a>
-        </div>
+      <div class="glass-card text-center h-100">
+        <h5>⚙️ Manage</h5>
+        <p>Future section for managing users, admins, or settings.</p>
+        <a href="#" class="btn btn-secondary disabled">Coming Soon</a>
       </div>
     </div>
   </div>
 {% endblock %}
 
 {% block scripts %}
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    const stats = {
-      total: {{ stats.total }},
-      common: {{ stats.common }},
-      rare: {{ stats.rare }},
-      epic: {{ stats.epic }},
-      legendary: {{ stats.legendary }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const stats = {
+    total: {{ stats.total }},
+    base: {{ stats.base }},
+    awakened: {{ stats.awakened }},
+    event: {{ stats.event }}
+  };
+
+  function animateValue(id, start, end, duration) {
+    const obj = document.getElementById(id);
+    let startTimestamp = null;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      obj.innerText = Math.floor(progress * (end - start) + start);
+      if (progress < 1) window.requestAnimationFrame(step);
     };
+    window.requestAnimationFrame(step);
+  }
 
-    function animateValue(id, start, end, duration) {
-      const obj = document.getElementById(id);
-      let startTimestamp = null;
-      const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        obj.innerText = Math.floor(progress * (end - start) + start);
-        if (progress < 1) window.requestAnimationFrame(step);
-      };
-      window.requestAnimationFrame(step);
-    }
+  animateValue("totalCards", 0, stats.total, 1500);
+  animateValue("baseCards", 0, stats.base, 1500);
+  animateValue("awakenedCards", 0, stats.awakened, 1500);
+  animateValue("eventCards", 0, stats.event, 1500);
 
-    animateValue("totalCards", 0, stats.total, 1500);
-    animateValue("commonCards", 0, stats.common, 1500);
-    animateValue("rareCards", 0, stats.rare, 1500);
-    animateValue("epicCards", 0, stats.epic, 1500);
-
-    const ctx = document.getElementById('rarityChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: ['Common', 'Rare', 'Epic', 'Legendary'],
-        datasets: [{
-          data: [stats.common, stats.rare, stats.epic, stats.legendary],
-          backgroundColor: ['lightgray', '#3498db', '#9b59b6', 'gold']
-        }]
-      },
-      options: {
-        plugins: {
-          legend: { labels: { color: '#fff' } }
-        }
+  const ctx = document.getElementById('formChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Base', 'Awakened', 'Event'],
+      datasets: [{
+        data: [stats.base, stats.awakened, stats.event],
+        backgroundColor: ['#3498db', 'gold', '#e91e63']
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { labels: { color: '#fff' } }
       }
-    });
-  </script>
+    }
+  });
+</script>
 {% endblock %}
