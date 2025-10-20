@@ -2,7 +2,7 @@
 {% block title %}Edit Card{% endblock %}
 
 {% block content %}
-  <h1 class="mb-4 text-center glow-title">🛠️ Edit Card #{{ card.id }}</h1>
+  <h1 class="page-title text-center">Edit Card #{{ card.id }}</h1>
 
   {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -19,9 +19,9 @@
       <div class="mb-3">
         <label class="form-label">Form</label>
         <select name="form" class="form-select">
-          <option value="base" {% if card.form == "base" %}selected{% endif %}>🟦 Base</option>
-          <option value="awakened" {% if card.form == "awakened" %}selected{% endif %}>✨ Awakened</option>
-          <option value="event" {% if card.form == "event" %}selected{% endif %}>🎉 Event</option>
+          <option value="base" {% if card.form == "base" %}selected{% endif %}>Base</option>
+          <option value="awakened" {% if card.form == "awakened" %}selected{% endif %}>Awakened</option>
+          <option value="event" {% if card.form == "event" %}selected{% endif %}>Event</option>
         </select>
       </div>
       <div class="mb-3">
@@ -33,7 +33,7 @@
         <textarea class="form-control" name="description">{{ card.description }}</textarea>
       </div>
       <div class="d-flex justify-content-between">
-        <button type="submit" class="btn btn-glow">💾 Save Changes</button>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
         <a href="{{ url_for('history') }}" class="btn btn-outline-light">Cancel</a>
       </div>
     </form>
