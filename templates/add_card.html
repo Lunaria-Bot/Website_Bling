@@ -2,7 +2,7 @@
 {% block title %}Add Card{% endblock %}
 
 {% block content %}
-  <h1 class="page-title text-center">Add a New Card</h1>
+  <h1 class="page-title">Add a New Card</h1>
 
   {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -23,7 +23,7 @@
         <button type="submit" class="btn btn-primary">Edit</button>
       </div>
       <div class="col-auto">
-        <small class="text-muted">Find IDs on the History page.</small>
+        <small class="text-muted">Use History to find card IDs.</small>
       </div>
     </form>
   </div>
@@ -41,17 +41,17 @@
             <label class="form-label">Description</label>
             <textarea class="form-control" name="description" id="description"></textarea>
           </div>
-          <h5 class="mt-4 mb-2">Images by Form</h5>
+          <h5 class="mt-4 mb-2">Image URLs</h5>
           <div class="mb-3">
-            <label class="form-label">Base Image URL</label>
+            <label class="form-label">Base Image</label>
             <input type="url" class="form-control" name="image_base" id="image_base" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Awakened Image URL</label>
+            <label class="form-label">Awakened Image</label>
             <input type="url" class="form-control" name="image_awakened" id="image_awakened" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Event Image URL</label>
+            <label class="form-label">Event Image</label>
             <input type="url" class="form-control" name="image_event" id="image_event" required>
           </div>
           <button type="submit" class="btn btn-primary w-100 mt-3">Add All Forms</button>
