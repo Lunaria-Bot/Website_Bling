@@ -2,111 +2,64 @@
 {% block title %}Add Card{% endblock %}
 
 {% block content %}
-  <h1 class="page-title">Forge a New Card</h1>
-
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      <div class="alert alert-success glass-card text-center">{{ messages[0] }}</div>
-    {% endif %}
-  {% endwith %}
-
-  <div class="row">
-    <!-- Form -->
-    <div class="col-md-6">
-      <div class="glass-card mb-4">
-        <form method="POST" id="cardForm">
-          <div class="mb-3">
-            <label class="form-label">Character Name</label>
-            <input type="text" class="form-control" name="base_name" id="base_name" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea class="form-control" name="description" id="description"></textarea>
-          </div>
-          <h5 class="mt-4 mb-2">Image URLs</h5>
-          <div class="mb-3">
-            <label class="form-label">Base Image</label>
-            <input type="url" class="form-control" name="image_base" id="image_base" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Awakened Image</label>
-            <input type="url" class="form-control" name="image_awakened" id="image_awakened" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Event Image</label>
-            <input type="url" class="form-control" name="image_event" id="image_event" required>
-          </div>
-          <button type="submit" class="btn btn-primary w-100 mt-3">Add All Forms</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Preview -->
-    <div class="col-md-6">
-      <div class="glass-card">
-        <h5 class="mb-3">Live Preview</h5>
-        <ul class="nav nav-tabs" id="previewTabs" role="tablist">
-          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#preview_base">Base</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#preview_awakened">Awakened</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#preview_event">Event</button></li>
-        </ul>
-        <div class="tab-content mt-3">
-          <div class="tab-pane fade show active" id="preview_base">
-            <div class="text-center">
-              <h6 id="title_base">Card (Base)</h6>
-              <p id="desc_base">Description...</p>
-              <img id="img_base" src="" class="img-fluid rounded shadow">
-            </div>
-          </div>
-          <div class="tab-pane fade" id="preview_awakened">
-            <div class="text-center">
-              <h6 id="title_awakened">Card (Awakened)</h6>
-              <p id="desc_awakened">Description...</p>
-              <img id="img_awakened" src="" class="img-fluid rounded shadow">
-            </div>
-          </div>
-          <div class="tab-pane fade" id="preview_event">
-            <div class="text-center">
-              <h6 id="title_event">Card (Event)</h6>
-              <p id="desc_event">Description...</p>
-              <img id="img_event" src="" class="img-fluid rounded shadow">
-            </div>
-          </div>
-        </div>
-      </div>
+<div class="row">
+  <!-- Sidebar -->
+  <div class="col-md-3" data-aos="fade-right">
+    <div class="glass-card p-3">
+      <h5 class="text-light mb-4">Navigation</h5>
+      <ul class="nav flex-column">
+        <li class="nav-item mb-2">
+          <a class="nav-link text-light" href="{{ url_for('admin_dashboard') }}">
+            <i class="fas fa-chart-pie me-2"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link text-light fw-bold text-primary" href="{{ url_for('add_card') }}">
+            <i class="fas fa-plus me-2"></i> Add Card
+          </a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link text-light" href="{{ url_for('history') }}">
+            <i class="fas fa-clock me-2"></i> History
+          </a>
+        </li>
+        <li class="nav-item">
+          <span class="nav-link text-muted"><i class="fas fa-cogs me-2"></i> Manage (soon)</span>
+        </li>
+      </ul>
     </div>
   </div>
-{% endblock %}
 
-{% block scripts %}
-<script>
-  const baseName = document.getElementById("base_name");
-  const desc = document.getElementById("description");
-  const imgBase = document.getElementById("image_base");
-  const imgAwakened = document.getElementById("image_awakened");
-  const imgEvent = document.getElementById("image_event");
+  <!-- Form Content -->
+  <div class="col-md-9">
+    <h1 class="page-title" data-aos="fade-down">Add a New Card</h1>
 
-  function updatePreview() {
-    const base = baseName.value || "Card";
-    const description = desc.value || "Description...";
+    <form method="POST" action="{{ url_for('add_card') }}">
+      <div class="glass-card p-4" data-aos="fade-up">
+        <div class="mb-3" data-aos="fade-up" data-aos-delay="100">
+          <label for="character_name" class="form-label text-light">Character Name</label>
+          <input type="text" class="form-control bg-dark text-light border-secondary" id="character_name" name="character_name" required>
+        </div>
 
-    document.getElementById("title_base").innerText = base + " (Base)";
-    document.getElementById("desc_base").innerText = description;
-    document.getElementById("img_base").src = imgBase.value;
+        <div class="mb-3" data-aos="fade-up" data-aos-delay="200">
+          <label for="form" class="form-label text-light">Form Type</label>
+          <select class="form-select bg-dark text-light border-secondary" id="form" name="form" required>
+            <option value="base">Base</option>
+            <option value="awakened">Awakened</option>
+            <option value="event">Event</option>
+          </select>
+        </div>
 
-    document.getElementById("title_awakened").innerText = base + " (Awakened)";
-    document.getElementById("desc_awakened").innerText = description;
-    document.getElementById("img_awakened").src = imgAwakened.value;
+        <div class="mb-3" data-aos="fade-up" data-aos-delay="300">
+          <label for="description" class="form-label text-light">Description</label>
+          <textarea class="form-control bg-dark text-light border-secondary" id="description" name="description" rows="4"></textarea>
+        </div>
 
-    document.getElementById("title_event").innerText = base + " (Event)";
-    document.getElementById("desc_event").innerText = description;
-    document.getElementById("img_event").src = imgEvent.value;
-  }
-
-  [baseName, desc, imgBase, imgAwakened, imgEvent].forEach(el => {
-    el.addEventListener("input", updatePreview);
-  });
-
-  window.addEventListener("DOMContentLoaded", updatePreview);
-</script>
+        <div class="text-end" data-aos="fade-up" data-aos-delay="400">
+          <button type="submit" class="btn btn-primary px-4">Add Card</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}
