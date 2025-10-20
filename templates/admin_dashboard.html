@@ -2,103 +2,104 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-  <h1 class="page-title">Welcome to Warp Gate Bot</h1>
+<h1 class="page-title" data-aos="fade-down">Welcome to Warp Gate Bot</h1>
 
-  <!-- Stat Cards -->
-  <div class="row g-4 mb-5">
-    <div class="col-md-3">
-      <div class="glass-card text-center">
-        <div class="mb-2"><i class="fas fa-layer-group fa-2x text-primary"></i></div>
-        <h3>{{ stats.total }}</h3>
-        <p class="text-muted">Total Cards</p>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="glass-card text-center">
-        <div class="mb-2"><i class="fas fa-cube fa-2x text-info"></i></div>
-        <h3>{{ stats.base }}</h3>
-        <p class="text-muted">Base Forms</p>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="glass-card text-center">
-        <div class="mb-2"><i class="fas fa-bolt fa-2x text-warning"></i></div>
-        <h3>{{ stats.awakened }}</h3>
-        <p class="text-muted">Awakened Forms</p>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="glass-card text-center">
-        <div class="mb-2"><i class="fas fa-star fa-2x text-danger"></i></div>
-        <h3>{{ stats.event }}</h3>
-        <p class="text-muted">Event Forms</p>
-      </div>
+<!-- Stat Cards -->
+<div class="row g-4 mb-5">
+  <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+    <div class="glass-card text-center">
+      <div class="mb-2"><i class="fas fa-layer-group fa-2x text-primary"></i></div>
+      <h3>{{ stats.total }}</h3>
+      <p class="text-muted">Total Cards</p>
     </div>
   </div>
-
-  <!-- Chart -->
-  <div class="row mb-5">
-    <div class="col-md-6 offset-md-3 glass-card">
-      <canvas id="formChart"></canvas>
+  <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+    <div class="glass-card text-center">
+      <div class="mb-2"><i class="fas fa-cube fa-2x text-info"></i></div>
+      <h3>{{ stats.base }}</h3>
+      <p class="text-muted">Base Forms</p>
     </div>
   </div>
-
-  <!-- Recent Cards -->
-  <h4 class="mb-3">Recently Added Cards</h4>
-  {% for c in stats.recent %}
-    <div class="glass-card mb-3">
-      <strong>#{{ c.id }}</strong> — {{ c.character_name }}
-      <small class="text-muted">({{ c.form|capitalize }})</small><br>
-      <small>Added: {{ c.created_at }}</small>
-    </div>
-  {% else %}
-    <p class="text-muted">No recent cards found.</p>
-  {% endfor %}
-
-  <!-- Quick Links -->
-  <div class="row g-4 mt-4">
-    <div class="col-md-4">
-      <div class="glass-card text-center h-100">
-        <h5>Add Card</h5>
-        <p>Insert a new card with all forms.</p>
-        <a href="{{ url_for('add_card') }}" class="btn btn-primary">Go</a>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="glass-card text-center h-100">
-        <h5>Card History</h5>
-        <p>Browse and filter recently added cards.</p>
-        <a href="{{ url_for('history') }}" class="btn btn-primary">Go</a>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="glass-card text-center h-100">
-        <h5>Manage</h5>
-        <p>Future section for managing users or settings.</p>
-        <a href="#" class="btn btn-secondary disabled">Coming Soon</a>
-      </div>
+  <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+    <div class="glass-card text-center">
+      <div class="mb-2"><i class="fas fa-bolt fa-2x text-warning"></i></div>
+      <h3>{{ stats.awakened }}</h3>
+      <p class="text-muted">Awakened Forms</p>
     </div>
   </div>
+  <div class="col-md-3" data-aos="fade-up" data-aos-delay="400">
+    <div class="glass-card text-center">
+      <div class="mb-2"><i class="fas fa-star fa-2x text-danger"></i></div>
+      <h3>{{ stats.event }}</h3>
+      <p class="text-muted">Event Forms</p>
+    </div>
+  </div>
+</div>
+
+<!-- Chart -->
+<div class="row mb-5" data-aos="zoom-in">
+  <div class="col-md-6 offset-md-3 glass-card">
+    <canvas id="formChart"></canvas>
+  </div>
+</div>
+
+<!-- Recent Cards -->
+<h4 class="mb-3" data-aos="fade-right">Recently Added Cards</h4>
+{% for c in stats.recent %}
+  <div class="glass-card mb-3" data-aos="fade-up">
+    <strong>#{{ c.id }}</strong> — {{ c.character_name }}
+    <small class="text-muted">({{ c.form|capitalize }})</small><br>
+    <small>Added: {{ c.created_at }}</small>
+  </div>
+{% else %}
+  <p class="text-muted">No recent cards found.</p>
+{% endfor %}
+
+<!-- Quick Links -->
+<div class="row g-4 mt-4">
+  <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+    <div class="glass-card text-center h-100">
+      <h5>Add Card</h5>
+      <p>Insert a new card with all forms.</p>
+      <a href="{{ url_for('add_card') }}" class="btn btn-primary">Go</a>
+    </div>
+  </div>
+  <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+    <div class="glass-card text-center h-100">
+      <h5>Card History</h5>
+      <p>Browse and filter recently added cards.</p>
+      <a href="{{ url_for('history') }}" class="btn btn-primary">Go</a>
+    </div>
+  </div>
+  <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+    <div class="glass-card text-center h-100">
+      <h5>Manage</h5>
+      <p>Future section for managing users or settings.</p>
+      <a href="#" class="btn btn-secondary disabled">Coming Soon</a>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const ctx = document.getElementById('formChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Base', 'Awakened', 'Event'],
-      datasets: [{
-        data: [{{ stats.base }}, {{ stats.awakened }}, {{ stats.event }}],
-        backgroundColor: ['#3498db', 'gold', '#e91e63']
-      }]
-    },
-    options: {
-      plugins: {
-        legend: { labels: { color: '#fff' } }
+  const ctx = document.getElementById('formChart')?.getContext('2d');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Base', 'Awakened', 'Event'],
+        datasets: [{
+          data: [{{ stats.base }}, {{ stats.awakened }}, {{ stats.event }}],
+          backgroundColor: ['#3498db', 'gold', '#e91e63']
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { labels: { color: '#fff' } }
+        }
       }
-    }
-  });
+    });
+  }
 </script>
 {% endblock %}
