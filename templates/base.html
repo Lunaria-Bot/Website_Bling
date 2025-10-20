@@ -13,6 +13,8 @@
       color: #f0f0f0;
       margin: 0;
     }
+
+    /* Sidebar */
     .sidebar {
       width: 240px;
       background-color: #1c1e22;
@@ -22,18 +24,21 @@
       left: 0;
       padding-top: 70px;
       border-right: 1px solid #2c2f33;
+      z-index: 1000;
     }
     .sidebar a {
       display: block;
-      padding: 1rem;
+      padding: 1rem 1.5rem;
       color: #ccc;
       text-decoration: none;
-      transition: background 0.2s;
+      transition: background 0.2s, color 0.2s;
     }
     .sidebar a:hover {
       background-color: #2a2d32;
       color: #fff;
     }
+
+    /* Top Navbar */
     .navbar {
       height: 70px;
       background-color: #1c1e22;
@@ -43,11 +48,21 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 240px;
+      z-index: 900;
     }
+
+    /* Main Content */
     .main {
       margin-left: 240px;
       padding: 2rem;
+      padding-top: 90px;
     }
+
+    /* Cards */
     .glass-card {
       background-color: #1f2126;
       border: 1px solid #2c2f33;
@@ -55,6 +70,8 @@
       padding: 1.5rem;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
+
+    /* Buttons */
     .btn-primary {
       background-color: #3b82f6;
       border: none;
@@ -62,16 +79,50 @@
     .btn-primary:hover {
       background-color: #2563eb;
     }
+
+    .btn-outline-light {
+      border-color: #aaa;
+      color: #eee;
+    }
+
+    /* Forms */
+    .form-control, .form-select {
+      background-color: #1f1f2f;
+      border: 1px solid #3c4046;
+      color: #f5f5f5;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 0.2rem rgba(59,130,246,.25);
+    }
+
+    /* Page Title */
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
+      text-align: center;
+      color: #e0e0ff;
+      text-shadow: 0 0 8px rgba(107,107,255,0.3);
+    }
+
+    /* Utility */
+    .card-shadow {
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
   </style>
   {% block head %}{% endblock %}
 </head>
 <body>
+  <!-- Sidebar -->
   <div class="sidebar">
     <a href="{{ url_for('admin_dashboard') }}"><i class="fas fa-home me-2"></i> Dashboard</a>
     <a href="{{ url_for('add_card') }}"><i class="fas fa-plus me-2"></i> Add Card</a>
     <a href="{{ url_for('history') }}"><i class="fas fa-book me-2"></i> History</a>
   </div>
 
+  <!-- Top Navbar -->
   <nav class="navbar">
     <div class="navbar-brand text-white">Admin Panel</div>
     {% if session.get("user_id") %}
@@ -82,6 +133,7 @@
     {% endif %}
   </nav>
 
+  <!-- Main Content -->
   <main class="main">
     {% with messages = get_flashed_messages() %}
       {% if messages %}
