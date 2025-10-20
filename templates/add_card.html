@@ -2,12 +2,11 @@
 {% block title %}Add Card{% endblock %}
 
 {% block head %}
-  <!-- Lien vers le CSS externe -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/card_preview.css') }}">
 {% endblock %}
 
 {% block content %}
-  <h1 class="mb-4 page-title">Add Card (All Rarities)</h1>
+  <h1 class="mb-4 page-title">Add Card (All Forms)</h1>
 
   {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -50,22 +49,18 @@
               <label class="form-label">Description</label>
               <textarea class="form-control" name="description" id="description"></textarea>
             </div>
-            <h5 class="mt-4 mb-2">Images by Rarity</h5>
+            <h5 class="mt-4 mb-2">Images by Form</h5>
             <div class="mb-3">
-              <label class="form-label">Common Image URL</label>
-              <input type="url" class="form-control" name="image_common" id="image_common" required>
+              <label class="form-label">Base Image URL</label>
+              <input type="url" class="form-control" name="image_base" id="image_base" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">Rare Image URL</label>
-              <input type="url" class="form-control" name="image_rare" id="image_rare" required>
+              <label class="form-label">Awakened Image URL</label>
+              <input type="url" class="form-control" name="image_awakened" id="image_awakened" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">Epic Image URL</label>
-              <input type="url" class="form-control" name="image_epic" id="image_epic" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Legendary Image URL</label>
-              <input type="url" class="form-control" name="image_legendary" id="image_legendary" required>
+              <label class="form-label">Event Image URL</label>
+              <input type="url" class="form-control" name="image_event" id="image_event" required>
             </div>
             <button type="submit" class="btn btn-primary w-100 mt-3">✨ Add All</button>
           </form>
@@ -79,38 +74,30 @@
         <div class="card-body">
           <h4 class="card-title mb-3">👁️ Preview</h4>
           <ul class="nav nav-tabs" id="previewTabs" role="tablist">
-            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#preview_common">Common</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#preview_rare">Rare</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#preview_epic">Epic</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#preview_legendary">Legendary</button></li>
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#preview_base">Base</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#preview_awakened">Awakened</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#preview_event">Event</button></li>
           </ul>
           <div class="tab-content mt-3">
-            <div class="tab-pane fade show active rarity-common" id="preview_common">
+            <div class="tab-pane fade show active" id="preview_base">
               <div class="preview-card">
-                <h5 id="title_common">Card (Common) <span class="badge bg-success">Common</span></h5>
-                <p id="desc_common">Description...</p>
-                <div class="preview-image"><img id="img_common" src=""></div>
+                <h5 id="title_base">Card (Base) <span class="badge bg-primary">🟦 Base</span></h5>
+                <p id="desc_base">Description...</p>
+                <div class="preview-image"><img id="img_base" src=""></div>
               </div>
             </div>
-            <div class="tab-pane fade rarity-rare" id="preview_rare">
+            <div class="tab-pane fade" id="preview_awakened">
               <div class="preview-card">
-                <h5 id="title_rare">Card (Rare) <span class="badge bg-primary">Rare</span></h5>
-                <p id="desc_rare">Description...</p>
-                <div class="preview-image"><img id="img_rare" src=""></div>
+                <h5 id="title_awakened">Card (Awakened) <span class="badge bg-warning text-dark">✨ Awakened</span></h5>
+                <p id="desc_awakened">Description...</p>
+                <div class="preview-image"><img id="img_awakened" src=""></div>
               </div>
             </div>
-            <div class="tab-pane fade rarity-epic" id="preview_epic">
+            <div class="tab-pane fade" id="preview_event">
               <div class="preview-card">
-                <h5 id="title_epic">Card (Epic) <span class="badge bg-purple">Epic</span></h5>
-                <p id="desc_epic">Description...</p>
-                <div class="preview-image"><img id="img_epic" src=""></div>
-              </div>
-            </div>
-            <div class="tab-pane fade rarity-legendary" id="preview_legendary">
-              <div class="preview-card">
-                <h5 id="title_legendary">Card (Legendary) <span class="badge bg-orange text-dark">Legendary</span></h5>
-                <p id="desc_legendary">Description...</p>
-                <div class="preview-image"><img id="img_legendary" src=""></div>
+                <h5 id="title_event">Card (Event) <span class="badge bg-danger">🎉 Event</span></h5>
+                <p id="desc_event">Description...</p>
+                <div class="preview-image"><img id="img_event" src=""></div>
               </div>
             </div>
           </div>
@@ -122,40 +109,33 @@
 
 {% block scripts %}
   <script>
-    // Live preview wiring
     const baseName = document.getElementById("base_name");
     const desc = document.getElementById("description");
-    const imgCommon = document.getElementById("image_common");
-    const imgRare = document.getElementById("image_rare");
-    const imgEpic = document.getElementById("image_epic");
-    const imgLegendary = document.getElementById("image_legendary");
+    const imgBase = document.getElementById("image_base");
+    const imgAwakened = document.getElementById("image_awakened");
+    const imgEvent = document.getElementById("image_event");
 
     function updatePreview() {
       const base = baseName.value || "Card";
       const description = desc.value || "Description...";
 
-      document.getElementById("title_common").innerText = base + " (Common)";
-      document.getElementById("desc_common").innerText = description;
-      document.getElementById("img_common").src = imgCommon.value;
+      document.getElementById("title_base").innerText = base + " (Base)";
+      document.getElementById("desc_base").innerText = description;
+      document.getElementById("img_base").src = imgBase.value;
 
-      document.getElementById("title_rare").innerText = base + " (Rare)";
-      document.getElementById("desc_rare").innerText = description;
-      document.getElementById("img_rare").src = imgRare.value;
+      document.getElementById("title_awakened").innerText = base + " (Awakened)";
+      document.getElementById("desc_awakened").innerText = description;
+      document.getElementById("img_awakened").src = imgAwakened.value;
 
-      document.getElementById("title_epic").innerText = base + " (Epic)";
-      document.getElementById("desc_epic").innerText = description;
-      document.getElementById("img_epic").src = imgEpic.value;
-
-      document.getElementById("title_legendary").innerText = base + " (Legendary)";
-      document.getElementById("desc_legendary").innerText = description;
-      document.getElementById("img_legendary").src = imgLegendary.value;
+      document.getElementById("title_event").innerText = base + " (Event)";
+      document.getElementById("desc_event").innerText = description;
+      document.getElementById("img_event").src = imgEvent.value;
     }
 
-    [baseName, desc, imgCommon, imgRare, imgEpic, imgLegendary].forEach(el => {
+    [baseName, desc, imgBase, imgAwakened, imgEvent].forEach(el => {
       el.addEventListener("input", updatePreview);
     });
 
-    // Quick edit by ID
     function goEditById(e) {
       e.preventDefault();
       const id = document.getElementById("editId").value;
@@ -163,7 +143,6 @@
       window.location.href = `/edit/${id}`;
     }
 
-    // Initialize preview on page load
     window.addEventListener("DOMContentLoaded", updatePreview);
   </script>
 {% endblock %}
