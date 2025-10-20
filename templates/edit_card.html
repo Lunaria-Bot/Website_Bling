@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Edit Card{% endblock %}
+{% block title %}Edit Cards{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -23,6 +23,11 @@
             <i class="fas fa-clock me-2"></i> History
           </a>
         </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link text-light fw-bold text-primary" href="{{ url_for('edit_card_list') }}">
+            <i class="fas fa-edit me-2"></i> Edit Card
+          </a>
+        </li>
         <li class="nav-item">
           <span class="nav-link text-muted"><i class="fas fa-cogs me-2"></i> Manage (soon)</span>
         </li>
@@ -30,50 +35,66 @@
     </div>
   </div>
 
-  <!-- Form Content -->
+  <!-- Main Content -->
   <div class="col-md-9">
-    <h1 class="page-title" data-aos="fade-down">Edit Card #{{ card.id }}</h1>
+    <h1 class="page-title text-white" data-aos="fade-down">Edit Cards</h1>
 
-    <form method="POST" action="{{ url_for('edit_card', card_id=card.id) }}">
-      <div class="glass-card p-4" data-aos="fade-up">
-        <div class="mb-3" data-aos="fade-up" data-aos-delay="100">
-          <label for="character_name" class="form-label text-light">Character Name</label>
-          <input type="text" class="form-control bg-dark text-light border-secondary" id="character_name" name="character_name" value="{{ card.character_name }}" required>
-        </div>
+    <!-- Filters -->
+    <div class="row mb-4" data-aos="fade-up">
+      <div class="col-md-6">
+        <select id="rarityFilter" class="form-select bg-dark text-light border-secondary">
+          <option value="all">All Forms</option>
+          <option value="base">Base</option>
+          <option value="awakened">Awakened</option>
+          <option value="event">Event</option>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <input type="text" id="searchInput" class="form-control bg-dark text-light border-secondary" placeholder="Search by name or ID">
+      </div>
+    </div>
 
-        <div class="mb-3" data-aos="fade-up" data-aos-delay="200">
-          <label for="form" class="form-label text-light">Form Type</label>
-          <select class="form-select bg-dark text-light border-secondary" id="form" name="form" required>
-            <option value="base" {% if card.form == 'base' %}selected{% endif %}>Base</option>
-            <option value="awakened" {% if card.form == 'awakened' %}selected{% endif %}>Awakened</option>
-            <option value="event" {% if card.form == 'event' %}selected{% endif %}>Event</option>
-          </select>
-        </div>
-
-        <div class="mb-3" data-aos="fade-up" data-aos-delay="300">
-          <label for="description" class="form-label text-light">Description</label>
-          <textarea class="form-control bg-dark text-light border-secondary" id="description" name="description" rows="4">{{ card.description }}</textarea>
-        </div>
-
-        <div class="mb-3" data-aos="fade-up" data-aos-delay="350">
-          <label for="image_link" class="form-label text-light">Image Link</label>
-          <input type="url" class="form-control bg-dark text-light border-secondary" id="image_link" name="image_link" value="{{ card.image_link }}" required>
-          <div id="linkFeedback" class="form-text text-danger mt-1 d-none">⚠️ Invalid image link</div>
-        </div>
-
-        <div class="text-end" data-aos="fade-up" data-aos-delay="400">
-          <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+    <!-- Card List -->
+    {% for c in cards %}
+      <div class="glass-card mb-3 glow-hover card-entry" data-form="{{ c.form }}" data-name="{{ c.character_name|lower }}" data-id="{{ c.id }}" data-aos="fade-up">
+        <strong class="text-white">#{{ c.id }}</strong> — <span class="text-white">{{ c.character_name }}</span>
+        <small class="text-muted">({{ c.form|capitalize }})</small><br>
+        <small class="text-muted">Added: {{ c.created_at }}</small>
+        <div class="float-end">
+          <a href="{{ url_for('edit_card', card_id=c.id) }}" class="btn btn-sm btn-outline-light me-2">
+            <i class="fas fa-edit"></i> Edit
+          </a>
+          <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ c.id }}" data-name="{{ c.character_name }}">
+            <i class="fas fa-trash"></i>
+          </button>
         </div>
       </div>
-    </form>
+    {% else %}
+      <div class="glass-card text-center text-muted py-4" data-aos="fade-up">
+        <i class="fas fa-info-circle fa-2x mb-2"></i>
+        <p>No cards found.</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
 
-    <!-- Live Preview -->
-    <div class="card-preview mt-5 mx-auto" data-aos="fade-up" data-aos-delay="500">
-      <img id="previewImage" src="{{ card.image_link }}" alt="Preview">
-      <div class="info">
-        <h5 id="previewName" class="text-info">{{ card.character_name }}</h5>
-        <p><strong>Form:</strong> <span id="previewForm" class="text-warning">{{ card.form }}</span></p>
-        <p id="previewDesc" class="text-white">{{ card.description }}</p>
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-light">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete <strong id="deleteName"></strong> (#<span id="deleteId"></span>)?</p>
+      </div>
+      <div class="modal-footer border-secondary">
+        <form method="POST" action="{{ url_for('delete_card') }}">
+          <input type="hidden" name="card_id" id="deleteInput">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
       </div>
     </div>
   </div>
@@ -81,79 +102,39 @@
 {% endblock %}
 
 {% block scripts %}
-<style>
-  .card-preview {
-    width: 436px;
-    height: 615px;
-    background-color: rgba(20, 20, 30, 0.9);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 0 20px rgba(107,107,255,0.3);
-    position: relative;
-  }
-
-  .card-preview img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  .card-preview .info {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    padding: 1rem;
-    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-    color: white;
-    font-size: 0.9rem;
-  }
-
-  .text-white {
-    color: #fff !important;
-  }
-</style>
-
 <script>
-  const nameInput = document.getElementById('character_name');
-  const formSelect = document.getElementById('form');
-  const descInput = document.getElementById('description');
-  const linkInput = document.getElementById('image_link');
+  const filter = document.getElementById('rarityFilter');
+  const search = document.getElementById('searchInput');
+  const entries = document.querySelectorAll('.card-entry');
 
-  const previewName = document.getElementById('previewName');
-  const previewForm = document.getElementById('previewForm');
-  const previewDesc = document.getElementById('previewDesc');
-  const previewImage = document.getElementById('previewImage');
-  const linkFeedback = document.getElementById('linkFeedback');
+  function applyFilters() {
+    const rarity = filter.value;
+    const query = search.value.toLowerCase();
 
-  nameInput.addEventListener('input', () => {
-    previewName.textContent = nameInput.value || '—';
-  });
+    entries.forEach(card => {
+      const form = card.dataset.form;
+      const name = card.dataset.name;
+      const id = card.dataset.id;
 
-  formSelect.addEventListener('change', () => {
-    previewForm.textContent = formSelect.value || '—';
-  });
+      const matchesForm = (rarity === 'all' || form === rarity);
+      const matchesSearch = name.includes(query) || id.includes(query);
 
-  descInput.addEventListener('input', () => {
-    previewDesc.textContent = descInput.value || '—';
-  });
+      card.style.display = (matchesForm && matchesSearch) ? 'block' : 'none';
+    });
+  }
 
-  linkInput.addEventListener('input', () => {
-    const url = linkInput.value;
-    if (url && url.startsWith('http')) {
-      previewImage.src = url;
-      previewImage.classList.remove('d-none');
-      previewImage.onerror = () => {
-        previewImage.classList.add('d-none');
-        linkFeedback.classList.remove('d-none');
-      };
-      previewImage.onload = () => {
-        linkFeedback.classList.add('d-none');
-      };
-    } else {
-      previewImage.classList.add('d-none');
-      linkFeedback.classList.remove('d-none');
-    }
+  filter.addEventListener('change', applyFilters);
+  search.addEventListener('input', applyFilters);
+
+  const deleteModal = document.getElementById('deleteModal');
+  deleteModal.addEventListener('show.bs.modal', event => {
+    const trigger = event.relatedTarget;
+    const id = trigger.dataset.id;
+    const name = trigger.dataset.name;
+
+    document.getElementById('deleteId').textContent = id;
+    document.getElementById('deleteName').textContent = name;
+    document.getElementById('deleteInput').value = id;
   });
 </script>
 {% endblock %}
