@@ -13,25 +13,16 @@
   <div class="form-container">
     <form method="POST">
       <div class="mb-3">
-        <label class="form-label">Base Name</label>
-        <input type="text" class="form-control" name="base_name" value="{{ card.base_name }}" required>
+        <label class="form-label">Character Name</label>
+        <input type="text" class="form-control" name="character_name" value="{{ card.character_name }}" required>
       </div>
       <div class="mb-3">
-        <label class="form-label">Full Name</label>
-        <input type="text" class="form-control" name="name" value="{{ card.name }}" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Rarity</label>
-        <select name="rarity" class="form-select">
-          <option value="common" {% if card.rarity == "common" %}selected{% endif %}>Common</option>
-          <option value="rare" {% if card.rarity == "rare" %}selected{% endif %}>Rare</option>
-          <option value="epic" {% if card.rarity == "epic" %}selected{% endif %}>Epic</option>
-          <option value="legendary" {% if card.rarity == "legendary" %}selected{% endif %}>Legendary</option>
+        <label class="form-label">Form</label>
+        <select name="form" class="form-select">
+          <option value="base" {% if card.form == "base" %}selected{% endif %}>🟦 Base</option>
+          <option value="awakened" {% if card.form == "awakened" %}selected{% endif %}>✨ Awakened</option>
+          <option value="event" {% if card.form == "event" %}selected{% endif %}>🎉 Event</option>
         </select>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Potential</label>
-        <input type="number" class="form-control" name="potential" value="{{ card.potential }}" min="1" max="5" required>
       </div>
       <div class="mb-3">
         <label class="form-label">Image URL</label>
