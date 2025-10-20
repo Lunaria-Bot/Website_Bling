@@ -2,33 +2,75 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>{% block title %}Admin Panel{% endblock %}</title>
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <title>{% block title %}Neon Rift Admin{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(135deg, #1f1c2c, #928dab);
-      min-height: 100vh;
+      font-family: 'Orbitron', sans-serif;
+      background: radial-gradient(circle at top left, #0f0f1a, #1a1a2e);
       color: #fff;
+      min-height: 100vh;
+      padding-top: 70px;
     }
     .navbar {
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #444;
     }
-    .page-title, .dashboard-title {
+    .navbar-brand {
+      font-weight: bold;
+      color: #00ffff !important;
+      text-shadow: 0 0 10px #00ffff;
+    }
+    .glow-title {
       animation: glow 2s ease-in-out infinite alternate;
     }
     @keyframes glow {
-      from { text-shadow: 0 0 5px #fff, 0 0 10px #00f, 0 0 20px #00f; }
-      to   { text-shadow: 0 0 10px #fff, 0 0 20px #0ff, 0 0 30px #0ff; }
+      from { text-shadow: 0 0 5px #fff, 0 0 10px #0ff; }
+      to   { text-shadow: 0 0 15px #fff, 0 0 25px #0ff; }
     }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1.5rem;
+    }
+    .btn-glow {
+      background: linear-gradient(135deg, #00ffff, #ff00ff);
+      border: none;
+      color: #fff;
+      box-shadow: 0 0 10px #00ffff;
+    }
+    .btn-glow:hover {
+      box-shadow: 0 0 20px #ff00ff;
+    }
+    .form-control, .form-select {
+      background: #1f1f2f;
+      border: 1px solid #444;
+      color: #fff;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: #00ffff;
+      box-shadow: 0 0 10px #00ffff;
+    }
+    .badge-form {
+      font-size: 0.8rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+    }
+    .badge-base { background: #3498db; }
+    .badge-awakened { background: gold; color: #000; }
+    .badge-event { background: #e91e63; }
   </style>
   {% block head %}{% endblock %}
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark">
+  <nav class="navbar fixed-top navbar-dark">
     <div class="container-fluid">
-      <a class="navbar-brand fw-bold" href="{{ url_for('admin_dashboard') }}">⚡ Admin Panel</a>
+      <a class="navbar-brand glow-title" href="{{ url_for('admin_dashboard') }}">🌌 Neon Rift Admin</a>
       <div class="d-flex">
         {% if session.get("user_id") %}
           <span class="navbar-text text-white me-3">
@@ -43,7 +85,7 @@
   <div class="container py-4">
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        <div class="alert alert-info">{{ messages[0] }}</div>
+        <div class="alert alert-info glass-card">{{ messages[0] }}</div>
       {% endif %}
     {% endwith %}
 
