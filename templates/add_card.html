@@ -55,6 +55,12 @@
           <textarea class="form-control bg-dark text-light border-secondary" id="description" name="description" rows="4"></textarea>
         </div>
 
+        <div class="mb-3" data-aos="fade-up" data-aos-delay="350">
+          <label for="image_link" class="form-label text-light">Image Link</label>
+          <input type="url" class="form-control bg-dark text-light border-secondary" id="image_link" name="image_link" placeholder="https://..." required>
+          <div id="linkFeedback" class="form-text text-danger mt-1 d-none">⚠️ Invalid image link</div>
+        </div>
+
         <div class="text-end" data-aos="fade-up" data-aos-delay="400">
           <button type="submit" class="btn btn-primary px-4">Add Card</button>
         </div>
@@ -68,6 +74,8 @@
       <p><strong>Form:</strong> <span id="previewForm" class="text-warning">—</span></p>
       <p><strong>Description:</strong></p>
       <p id="previewDesc" class="text-muted">—</p>
+      <p><strong>Image Link:</strong> <span id="previewLink" class="text-muted">—</span></p>
+      <img id="previewImage" src="" alt="Preview" class="img-fluid rounded mt-2 d-none" style="max-height: 200px;">
     </div>
   </div>
 </div>
@@ -78,10 +86,14 @@
   const nameInput = document.getElementById('character_name');
   const formSelect = document.getElementById('form');
   const descInput = document.getElementById('description');
+  const linkInput = document.getElementById('image_link');
 
   const previewName = document.getElementById('previewName');
   const previewForm = document.getElementById('previewForm');
   const previewDesc = document.getElementById('previewDesc');
+  const previewLink = document.getElementById('previewLink');
+  const previewImage = document.getElementById('previewImage');
+  const linkFeedback = document.getElementById('linkFeedback');
 
   nameInput.addEventListener('input', () => {
     previewName.textContent = nameInput.value || '—';
@@ -93,6 +105,26 @@
 
   descInput.addEventListener('input', () => {
     previewDesc.textContent = descInput.value || '—';
+  });
+
+  linkInput.addEventListener('input', () => {
+    const url = linkInput.value;
+    previewLink.textContent = url || '—';
+
+    if (url && url.startsWith('http')) {
+      previewImage.src = url;
+      previewImage.classList.remove('d-none');
+      previewImage.onerror = () => {
+        previewImage.classList.add('d-none');
+        linkFeedback.classList.remove('d-none');
+      };
+      previewImage.onload = () => {
+        linkFeedback.classList.add('d-none');
+      };
+    } else {
+      previewImage.classList.add('d-none');
+      linkFeedback.classList.remove('d-none');
+    }
   });
 </script>
 {% endblock %}
