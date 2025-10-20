@@ -11,23 +11,22 @@
   .card-row {
     display: flex;
     flex-wrap: wrap;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 0 12px rgba(0, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: #1c1e22;
+    border: 1px solid #2c2f33;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
   .card-row:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.5);
   }
   .card-row img {
     width: 100%;
     height: 220px;
     object-fit: contain;
-    background: #111;
-    border-radius: 12px 0 0 12px;
+    background-color: #111;
+    border-radius: 10px 0 0 10px;
   }
   .card-content {
     flex: 1;
@@ -50,7 +49,7 @@
     color: #888;
   }
   .id-badge {
-    background: #444;
+    background-color: #444;
     color: #fff;
     font-size: 0.75rem;
     padding: 0.2rem 0.5rem;
@@ -67,23 +66,23 @@
 {% endblock %}
 
 {% block content %}
-  <h1 class="mb-4 text-center glow-title">📜 Recently Added Cards</h1>
+  <h1 class="page-title text-center">Recently Added Cards</h1>
 
   <!-- Filters -->
   <form method="get" class="row mb-4 g-2 glass-card">
     <div class="col-md-3">
       <select name="form" class="form-select">
         <option value="all" {% if form_filter == "all" or not form_filter %}selected{% endif %}>All Forms</option>
-        <option value="base" {% if form_filter == "base" %}selected{% endif %}>🟦 Base</option>
-        <option value="awakened" {% if form_filter == "awakened" %}selected{% endif %}>✨ Awakened</option>
-        <option value="event" {% if form_filter == "event" %}selected{% endif %}>🎉 Event</option>
+        <option value="base" {% if form_filter == "base" %}selected{% endif %}>Base</option>
+        <option value="awakened" {% if form_filter == "awakened" %}selected{% endif %}>Awakened</option>
+        <option value="event" {% if form_filter == "event" %}selected{% endif %}>Event</option>
       </select>
     </div>
     <div class="col-md-5">
       <input type="text" name="search" class="form-control" placeholder="Search by character name" value="{{ search or '' }}">
     </div>
     <div class="col-md-2">
-      <button type="submit" class="btn btn-glow w-100">Filter</button>
+      <button type="submit" class="btn btn-primary w-100">Filter</button>
     </div>
   </form>
 
@@ -97,19 +96,13 @@
           <h5>
             <span class="id-badge">#{{ c.id }}</span>
             {{ c.character_name }}
-            {% if c.form == "base" %}
-              <span class="badge badge-form badge-base">🟦 Base</span>
-            {% elif c.form == "awakened" %}
-              <span class="badge badge-form badge-awakened">✨ Awakened</span>
-            {% elif c.form == "event" %}
-              <span class="badge badge-form badge-event">🎉 Event</span>
-            {% endif %}
+            <span class="text-muted">({{ c.form|capitalize }})</span>
           </h5>
           <p>{{ c.description }}</p>
           <small>Added: {{ c.created_at }}</small>
         </div>
         <div class="col-md-2 card-actions">
-          <a href="{{ url_for('edit_card', card_id=c.id) }}" class="btn btn-sm btn-glow">Edit</a>
+          <a href="{{ url_for('edit_card', card_id=c.id) }}" class="btn btn-sm btn-primary">Edit</a>
         </div>
       </div>
     {% else %}
