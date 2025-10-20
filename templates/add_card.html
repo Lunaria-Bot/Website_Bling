@@ -2,7 +2,7 @@
 {% block title %}Add Card{% endblock %}
 
 {% block content %}
-  <h1 class="page-title">Add a New Card</h1>
+  <h1 class="page-title">Forge a New Card</h1>
 
   {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -10,31 +10,13 @@
     {% endif %}
   {% endwith %}
 
-  <!-- Quick Edit by ID -->
-  <div class="glass-card mb-4">
-    <form class="row g-2 align-items-center" onsubmit="goEditById(event)">
-      <div class="col-auto">
-        <label for="editId" class="form-label">Edit by ID</label>
-      </div>
-      <div class="col-auto">
-        <input type="number" min="1" class="form-control" id="editId" placeholder="Card ID">
-      </div>
-      <div class="col-auto">
-        <button type="submit" class="btn btn-primary">Edit</button>
-      </div>
-      <div class="col-auto">
-        <small class="text-muted">Use History to find card IDs.</small>
-      </div>
-    </form>
-  </div>
-
   <div class="row">
     <!-- Form -->
     <div class="col-md-6">
       <div class="glass-card mb-4">
         <form method="POST" id="cardForm">
           <div class="mb-3">
-            <label class="form-label">Base Name</label>
+            <label class="form-label">Character Name</label>
             <input type="text" class="form-control" name="base_name" id="base_name" required>
           </div>
           <div class="mb-3">
@@ -124,13 +106,6 @@
   [baseName, desc, imgBase, imgAwakened, imgEvent].forEach(el => {
     el.addEventListener("input", updatePreview);
   });
-
-  function goEditById(e) {
-    e.preventDefault();
-    const id = document.getElementById("editId").value;
-    if (!id) return;
-    window.location.href = `/edit/${id}`;
-  }
 
   window.addEventListener("DOMContentLoaded", updatePreview);
 </script>
