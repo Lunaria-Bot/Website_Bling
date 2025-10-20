@@ -3,14 +3,11 @@
 
 {% block head %}
 <style>
-  /* Container global */
   .card-list {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
   }
-
-  /* Ligne de carte */
   .card-row {
     display: flex;
     align-items: stretch;
@@ -24,18 +21,14 @@
     transform: translateY(-3px);
     box-shadow: 0 6px 16px rgba(0,0,0,0.6);
   }
-
-  /* Image */
   .card-row img {
     width: 100%;
-    height: 220px;          /* hauteur uniforme */
-    object-fit: contain;    /* 🔹 garde l’image entière visible */
-    background: #111;       /* fond neutre derrière */
+    height: 220px;
+    object-fit: contain;
+    background: #111;
     border-right: 1px solid #2c2d31;
     border-radius: 6px 0 0 6px;
   }
-
-  /* Contenu */
   .card-content {
     flex: 1;
     padding: 1rem 1.25rem;
@@ -43,24 +36,19 @@
     flex-direction: column;
     justify-content: space-between;
   }
-
   .card-content h5 {
     margin: 0;
     font-weight: 600;
     font-size: 1.1rem;
   }
-
   .card-content p {
     margin: 0.5rem 0;
     font-size: 0.9rem;
     color: #ccc;
   }
-
   .card-content small {
     color: #888;
   }
-
-  /* Badge ID */
   .id-badge {
     background: #444;
     color: #fff;
@@ -69,8 +57,6 @@
     border-radius: 6px;
     margin-right: 0.5rem;
   }
-
-  /* Bouton Edit */
   .card-actions {
     display: flex;
     align-items: center;
@@ -86,16 +72,15 @@
   <!-- Filters -->
   <form method="get" class="row mb-4 g-2">
     <div class="col-md-3">
-      <select name="rarity" class="form-select">
-        <option value="all" {% if rarity_filter == "all" or not rarity_filter %}selected{% endif %}>All Rarities</option>
-        <option value="common" {% if rarity_filter == "common" %}selected{% endif %}>Common</option>
-        <option value="rare" {% if rarity_filter == "rare" %}selected{% endif %}>Rare</option>
-        <option value="epic" {% if rarity_filter == "epic" %}selected{% endif %}>Epic</option>
-        <option value="legendary" {% if rarity_filter == "legendary" %}selected{% endif %}>Legendary</option>
+      <select name="form" class="form-select">
+        <option value="all" {% if form_filter == "all" or not form_filter %}selected{% endif %}>All Forms</option>
+        <option value="base" {% if form_filter == "base" %}selected{% endif %}>🟦 Base</option>
+        <option value="awakened" {% if form_filter == "awakened" %}selected{% endif %}>✨ Awakened</option>
+        <option value="event" {% if form_filter == "event" %}selected{% endif %}>🎉 Event</option>
       </select>
     </div>
     <div class="col-md-5">
-      <input type="text" name="search" class="form-control" placeholder="Search by base name" value="{{ search or '' }}">
+      <input type="text" name="search" class="form-control" placeholder="Search by character name" value="{{ search or '' }}">
     </div>
     <div class="col-md-2">
       <button type="submit" class="btn btn-primary w-100">Filter</button>
@@ -106,13 +91,13 @@
     {% for c in cards %}
       <div class="card-row">
         <div class="col-md-3 p-0">
-          <img src="{{ c.image_url }}" alt="{{ c.name }}">
+          <img src="{{ c.image_url }}" alt="{{ c.character_name }}">
         </div>
         <div class="col-md-7 card-content">
           <h5>
             <span class="id-badge">#{{ c.id }}</span>
-            {{ c.name }}
-            <small class="text-muted">({{ c.rarity|capitalize }}, ⭐{{ c.potential }})</small>
+            {{ c.character_name }}
+            <small class="text-muted">({{ c.form|capitalize }})</small>
           </h5>
           <p>{{ c.description }}</p>
           <small>Added: {{ c.created_at }}</small>
