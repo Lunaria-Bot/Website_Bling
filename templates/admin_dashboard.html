@@ -2,9 +2,9 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-  <h2 class="page-title">Welcome to the Card Control Center</h2>
+  <h1 class="page-title">Welcome to Warp Gate Bot</h1>
 
-  <!-- Stats Row -->
+  <!-- Stat Cards -->
   <div class="row g-4 mb-5">
     <div class="col-md-3">
       <div class="glass-card text-center">
@@ -44,7 +44,7 @@
   </div>
 
   <!-- Recent Cards -->
-  <h4 class="mb-3">Recent Cards</h4>
+  <h4 class="mb-3">Recently Added Cards</h4>
   {% for c in stats.recent %}
     <div class="glass-card mb-3">
       <strong>#{{ c.id }}</strong> — {{ c.character_name }}
