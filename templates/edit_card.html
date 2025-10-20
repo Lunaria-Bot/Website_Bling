@@ -2,15 +2,15 @@
 {% block title %}Edit Card{% endblock %}
 
 {% block content %}
-  <h1 class="mb-4 page-title">Edit Card #{{ card.id }}</h1>
+  <h1 class="mb-4 text-center glow-title">🛠️ Edit Card #{{ card.id }}</h1>
 
   {% with messages = get_flashed_messages() %}
     {% if messages %}
-      <div class="alert alert-info">{{ messages[0] }}</div>
+      <div class="alert alert-info glass-card text-center">{{ messages[0] }}</div>
     {% endif %}
   {% endwith %}
 
-  <div class="form-container">
+  <div class="glass-card mx-auto" style="max-width: 600px;">
     <form method="POST">
       <div class="mb-3">
         <label class="form-label">Character Name</label>
@@ -32,8 +32,10 @@
         <label class="form-label">Description</label>
         <textarea class="form-control" name="description">{{ card.description }}</textarea>
       </div>
-      <button type="submit" class="btn btn-success">💾 Save Changes</button>
-      <a href="{{ url_for('history') }}" class="btn btn-outline-light">Cancel</a>
+      <div class="d-flex justify-content-between">
+        <button type="submit" class="btn btn-glow">💾 Save Changes</button>
+        <a href="{{ url_for('history') }}" class="btn btn-outline-light">Cancel</a>
+      </div>
     </form>
   </div>
 {% endblock %}
