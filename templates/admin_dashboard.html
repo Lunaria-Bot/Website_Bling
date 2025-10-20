@@ -35,7 +35,7 @@
     <h1 class="page-title" data-aos="fade-down">Welcome to Warp Gate Bot</h1>
 
     <!-- Stat Cards -->
-    <div class="row g-4 mb-5">
+    <div class="row g-4 justify-content-center mb-5">
       <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
         <div class="glass-card text-center glow-hover">
           <i class="fas fa-layer-group fa-2x text-primary mb-2"></i>
@@ -66,15 +66,21 @@
 
     <!-- Recent Cards -->
     <h4 class="mb-3" data-aos="fade-right">Recently Added Cards</h4>
-    {% for c in stats.recent %}
-      <div class="glass-card mb-3 glow-hover" data-aos="fade-up" role="button" data-bs-toggle="modal" data-bs-target="#previewModal" data-id="{{ c.id }}" data-name="{{ c.character_name }}" data-form="{{ c.form }}" data-date="{{ c.created_at }}">
-        <strong>#{{ c.id }}</strong> — {{ c.character_name }}
-        <small class="text-muted">({{ c.form|capitalize }})</small><br>
-        <small>Added: {{ c.created_at }}</small>
-      </div>
+    {% if stats.recent %}
+      {% for c in stats.recent %}
+        <div class="glass-card mb-3 glow-hover" data-aos="fade-up" role="button" data-bs-toggle="modal" data-bs-target="#previewModal"
+             data-id="{{ c.id }}" data-name="{{ c.character_name }}" data-form="{{ c.form }}" data-date="{{ c.created_at }}">
+          <strong>#{{ c.id }}</strong> — {{ c.character_name }}
+          <small class="text-muted">({{ c.form|capitalize }})</small><br>
+          <small>Added: {{ c.created_at }}</small>
+        </div>
+      {% endfor %}
     {% else %}
-      <p class="text-muted">No recent cards found.</p>
-    {% endfor %}
+      <div class="glass-card text-center text-muted py-4" data-aos="fade-up">
+        <i class="fas fa-info-circle fa-2x mb-2"></i>
+        <p>No cards added yet. Use <strong>Add Card</strong> to begin.</p>
+      </div>
+    {% endif %}
   </div>
 </div>
 
