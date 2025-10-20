@@ -68,20 +68,52 @@
     </form>
 
     <!-- Live Preview -->
-    <div class="glass-card mt-4 p-4" data-aos="fade-up" data-aos-delay="500">
-      <h5 class="text-light mb-3">Live Preview</h5>
-      <p><strong>Name:</strong> <span id="previewName" class="text-info">—</span></p>
-      <p><strong>Form:</strong> <span id="previewForm" class="text-warning">—</span></p>
-      <p><strong>Description:</strong></p>
-      <p id="previewDesc" class="text-muted">—</p>
-      <p><strong>Image Link:</strong> <span id="previewLink" class="text-muted">—</span></p>
-      <img id="previewImage" src="" alt="Preview" class="img-fluid rounded mt-2 d-none" style="max-height: 200px;">
+    <div class="card-preview mt-5 mx-auto" data-aos="fade-up" data-aos-delay="500">
+      <img id="previewImage" src="" alt="Preview" class="d-none">
+      <div class="info">
+        <h5 id="previewName" class="text-info">—</h5>
+        <p><strong>Form:</strong> <span id="previewForm" class="text-warning">—</span></p>
+        <p id="previewDesc" class="text-white">—</p>
+      </div>
     </div>
   </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
+<style>
+  .card-preview {
+    width: 436px;
+    height: 615px;
+    background-color: rgba(20, 20, 30, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(107,107,255,0.3);
+    position: relative;
+  }
+
+  .card-preview img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .card-preview .info {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+    font-size: 0.9rem;
+  }
+
+  .text-white {
+    color: #fff !important;
+  }
+</style>
+
 <script>
   const nameInput = document.getElementById('character_name');
   const formSelect = document.getElementById('form');
@@ -91,7 +123,6 @@
   const previewName = document.getElementById('previewName');
   const previewForm = document.getElementById('previewForm');
   const previewDesc = document.getElementById('previewDesc');
-  const previewLink = document.getElementById('previewLink');
   const previewImage = document.getElementById('previewImage');
   const linkFeedback = document.getElementById('linkFeedback');
 
@@ -109,8 +140,6 @@
 
   linkInput.addEventListener('input', () => {
     const url = linkInput.value;
-    previewLink.textContent = url || '—';
-
     if (url && url.startsWith('http')) {
       previewImage.src = url;
       previewImage.classList.remove('d-none');
