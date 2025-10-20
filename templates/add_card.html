@@ -60,6 +60,39 @@
         </div>
       </div>
     </form>
+
+    <!-- Live Preview -->
+    <div class="glass-card mt-4 p-4" data-aos="fade-up" data-aos-delay="500">
+      <h5 class="text-light mb-3">Live Preview</h5>
+      <p><strong>Name:</strong> <span id="previewName" class="text-info">—</span></p>
+      <p><strong>Form:</strong> <span id="previewForm" class="text-warning">—</span></p>
+      <p><strong>Description:</strong></p>
+      <p id="previewDesc" class="text-muted">—</p>
+    </div>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const nameInput = document.getElementById('character_name');
+  const formSelect = document.getElementById('form');
+  const descInput = document.getElementById('description');
+
+  const previewName = document.getElementById('previewName');
+  const previewForm = document.getElementById('previewForm');
+  const previewDesc = document.getElementById('previewDesc');
+
+  nameInput.addEventListener('input', () => {
+    previewName.textContent = nameInput.value || '—';
+  });
+
+  formSelect.addEventListener('change', () => {
+    previewForm.textContent = formSelect.value || '—';
+  });
+
+  descInput.addEventListener('input', () => {
+    previewDesc.textContent = descInput.value || '—';
+  });
+</script>
 {% endblock %}
