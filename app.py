@@ -239,10 +239,6 @@ def remove_card_from_player():
         async with db_pool.acquire() as conn:
             await conn.execute("UPDATE cards SET owner_id=NULL WHERE id=$1", int(card_id))
 
-     loop.run_until_complete(unassign_card())
+    loop.run_until_complete(unassign_card())
     flash("🗑️ Card removed from player.")
     return redirect(url_for("player_profile", discord_id=discord_id))
-
-# --- Run Server ---
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
