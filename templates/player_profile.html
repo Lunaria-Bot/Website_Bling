@@ -3,7 +3,12 @@
 
 {% block content %}
 <div class="container-xl">
-  {% if player.username %}   <h1 class="page-title text-center mb-5" data-aos="fade-down">{{ player.username }}</h1> {% endif %}
+  <!-- Player Name or Discord Tag -->
+  {% if player.username %}
+    <h1 class="page-title text-center mb-5" data-aos="fade-down">{{ player.username }}</h1>
+  {% elif player.discord_tag %}
+    <h1 class="page-title text-center mb-5" data-aos="fade-down">{{ player.discord_tag }}</h1>
+  {% endif %}
 
   <!-- Player Info -->
   <div class="glass-card p-4 mb-5" data-aos="fade-up">
@@ -29,7 +34,9 @@
         <div class="progress bg-secondary mb-2" style="height: 8px;">
           <div class="progress-bar bg-warning" role="progressbar" style="width: {{ (player.xp / (player.xp_max or 172) * 100) | round(0) }}%;"></div>
         </div>
-        <p><strong class="text-light">Achievements:</strong> {{ player.achievements or 'None' }}</p>
+        {% if player.achievements %}
+          <p><strong class="text-light">Achievements:</strong> {{ player.achievements }}</p>
+        {% endif %}
         <p><strong class="text-light">Created:</strong> {{ player.created_at }}</p>
         <p><strong class="text-light">Last Update:</strong> {{ player.updated_at }}</p>
       </div>
