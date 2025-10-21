@@ -195,6 +195,8 @@ def player_profile(discord_id):
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
+    discord_id = str(discord_id).strip()
+
     async def fetch_player_and_cards():
         async with db_pool.acquire() as conn:
             player = await conn.fetchrow("SELECT id, discord_id, name, bloodcoins FROM players WHERE discord_id=$1", discord_id)
