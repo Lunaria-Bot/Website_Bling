@@ -143,10 +143,15 @@
   </div>
 
   <!-- Header -->
-  <div class="header-bar">
-    <div class="logo">Warp Gate Admin</div>
-    <div class="user-role">Logged in as: <strong>{{ session.username }}</strong> ({{ session.role }})</div>
+  <div class="header-bar d-flex flex-column align-items-center text-center">
+  <div class="logo mb-1">Warp Gate Dashboard</div>
+  <div class="user-role text-muted small">
+    Logged in as <strong>{{ session.username }}</strong> ({{ session.role }}) —
+    <a href="{{ url_for('logout') }}" class="text-danger text-decoration-none ms-1">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
   </div>
+</div>
 
   <!-- Main Content -->
   <div class="main-content">
