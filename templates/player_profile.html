@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Player Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+  <!-- Sidebar -->
+  <div class="col-md-3" data-aos="fade-right">
+    <div class="glass-card p-3">
+      <h5 class="text-light mb-4">Navigation</h5>
+      <ul class="nav flex-column">
+        <li class="nav-item mb-2">
+          <a class="nav-link text-light" href="{{ url_for('admin_dashboard') }}">
+            <i class="fas fa-chart-pie me-2"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link text-light" href="{{ url_for('edit_card_list') }}">
+            <i class="fas fa-edit me-2"></i> Edit Cards
+          </a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link text-light fw-bold text-primary" href="#">
+            <i class="fas fa-user me-2"></i> Player Profile
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="col-md-9">
+    <h1 class="page-title text-white" data-aos="fade-down">Player: {{ player.name }}</h1>
+    <p class="text-light">Discord ID: {{ player.discord_id }}</p>
+    <p class="text-light">Bloodcoins: {{ player.bloodcoins }}</p>
+    <p class="text-light">Cards Owned: {{ cards|length }}</p>
+
+    <!-- Add Card to Player -->
+    <form method="POST" action="{{ url_for('add_card_to_player') }}" class="glass-card p-3 mb-4" data-aos="fade-up">
+      <input type="hidden" name="player_id" value="{{ player.id }}">
+      <div class="mb-3">
+        <label for="card_id" class="form-label text-light">Add Card to Player</label>
+        <select name="card_id" id="card_id" class="form-select bg-dark text-light border-secondary">
+          {% for card in all_cards %}
+            <option value="{{ card.id }}">{{ card.character_name }} (#{{ card.id }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Add Card</button>
+    </form>
+
+    <!-- Card Collection -->
+    <h4 class="text-white mb-3" data-aos="fade-right">Card Collection</h4>
+    {% for c in cards %}
+      <div class="glass-card mb-3 glow-hover" data-aos="fade-up">
+        <strong class="text-white">#{{ c.id }}</strong> — <span class="text-white">{{ c.character_name }}</span>
+        <small class="text-muted">({{ c.form|capitalize }})</small><br>
+        <form method="POST" action="{{ url_for('remove_card_from_player') }}" class="mt-2">
+          <input type="hidden" name="card_id" value="{{ c.id }}">
+          <input type="hidden" name="discord_id" value="{{ player.discord_id }}">
+          <button type="submit" class="btn btn-sm btn-outline-danger">
+            <i class="fas fa-trash"></i> Remove
+          </button>
+        </form>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
