@@ -350,7 +350,23 @@ def manage():
 
     admins = loop.run_until_complete(fetch_all_admins())
     return render_template("manage.html", users=admins)
+    
+# --- Edit user --- 
+@app.route("/edit_user/<int:user_id>")
+def edit_user(user_id):
+    async def fetch_user():
+        async with db_pool.acquire() as conn:
+            return await conn.fetchrow(
+                "SELECT id, username, role FROM admins WHERE id = $1", user_id
+            )
 
+    user = loop.run_until_complete(fetch_user())
+    if not user:
+        flash("❌ User not found")
+        return redirect(url_for("manage"))
+
+    return render_template("edit_user.html", user=user)
+  
 # --- Run Server ---
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
