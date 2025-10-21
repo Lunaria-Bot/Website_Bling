@@ -2,97 +2,59 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="row">
-  <!-- Sidebar -->
-  <div class="col-md-3" data-aos="fade-right">
-    <div class="glass-card p-3">
-      <h5 class="text-light mb-4">Navigation</h5>
-      <ul class="nav flex-column">
-        <li class="nav-item mb-2">
-          <a class="nav-link text-light {% if request.endpoint == 'admin_dashboard' %}fw-bold text-primary{% endif %}" href="{{ url_for('admin_dashboard') }}">
-            <i class="fas fa-chart-pie me-2"></i> Dashboard
-          </a>
-        </li>
-        <li class="nav-item mb-2">
-          <a class="nav-link text-light {% if request.endpoint == 'add_card' %}fw-bold text-primary{% endif %}" href="{{ url_for('add_card') }}">
-            <i class="fas fa-plus me-2"></i> Add Card
-          </a>
-        </li>
-        <li class="nav-item mb-2">
-          <a class="nav-link text-light {% if request.endpoint == 'history' %}fw-bold text-primary{% endif %}" href="{{ url_for('history') }}">
-            <i class="fas fa-clock me-2"></i> History
-          </a>
-        </li>
-        <li class="nav-item mb-2">
-          <a class="nav-link text-light {% if request.endpoint == 'edit_card_list' %}fw-bold text-primary{% endif %}" href="{{ url_for('edit_card_list') }}">
-            <i class="fas fa-edit me-2"></i> Edit Card
-          </a>
-        </li>
-        <li class="nav-item mb-2">
-          <a class="nav-link text-light {% if request.endpoint == 'search_player' %}fw-bold text-primary{% endif %}" href="{{ url_for('search_player') }}">
-            <i class="fas fa-user-search me-2"></i> Search Player
-          </a>
-        </li>
-        <li class="nav-item">
-          <span class="nav-link text-muted"><i class="fas fa-cogs me-2"></i> Manage (soon)</span>
-        </li>
-      </ul>
+<h1 class="page-title" data-aos="fade-down">Welcome to Warp Gate Bot</h1>
+
+<!-- Stat Cards -->
+<div class="row g-4 justify-content-center mb-5">
+  <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+    <div class="glass-card text-center glow-hover p-4">
+      <i class="fas fa-layer-group fa-2x text-primary mb-2"></i>
+      <h3 class="text-white">{{ stats.total }}</h3>
+      <p class="text-muted">Total Cards</p>
     </div>
   </div>
-
-  <!-- Main Content -->
-  <div class="col-md-9">
-    <h1 class="page-title text-white" data-aos="fade-down">Welcome to Warp Gate Bot</h1>
-
-    <!-- Stat Cards -->
-    <div class="row g-4 justify-content-center mb-5">
-      <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-        <div class="glass-card text-center glow-hover">
-          <i class="fas fa-layer-group fa-2x text-primary mb-2"></i>
-          <h3 class="text-white">{{ stats.total }}</h3>
-          <p class="text-muted">Total Cards</p>
-        </div>
-      </div>
-      <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
-        <div class="glass-card text-center glow-hover">
-          <i class="fas fa-cube fa-2x text-info mb-2"></i>
-          <h3 class="text-white">{{ stats.base }}</h3>
-          <p class="text-muted">Base Forms</p>
-        </div>
-      </div>
-      <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
-        <div class="glass-card text-center glow-hover">
-          <i class="fas fa-bolt fa-2x text-warning mb-2"></i>
-          <h3 class="text-white">{{ stats.awakened }}</h3>
-          <p class="text-muted">Awakened Forms</p>
-        </div>
-      </div>
+  <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+    <div class="glass-card text-center glow-hover p-4">
+      <i class="fas fa-cube fa-2x text-info mb-2"></i>
+      <h3 class="text-white">{{ stats.base }}</h3>
+      <p class="text-muted">Base Forms</p>
     </div>
-
-    <!-- Chart -->
-    <div class="glass-card mb-5" data-aos="zoom-in">
-      <canvas id="formChart"></canvas>
+  </div>
+  <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+    <div class="glass-card text-center glow-hover p-4">
+      <i class="fas fa-bolt fa-2x text-warning mb-2"></i>
+      <h3 class="text-white">{{ stats.awakened }}</h3>
+      <p class="text-muted">Awakened Forms</p>
     </div>
+  </div>
+</div>
 
-    <!-- Recent Cards -->
-    <h4 class="mb-3 text-white" data-aos="fade-right">Recently Added Cards</h4>
-    {% if stats.recent %}
-      {% for c in stats.recent %}
-        <div class="glass-card mb-3 glow-hover" data-aos="fade-up" role="button" data-bs-toggle="modal" data-bs-target="#previewModal"
+<!-- Chart -->
+<div class="glass-card mb-5 p-4" data-aos="zoom-in">
+  <canvas id="formChart"></canvas>
+</div>
+
+<!-- Recent Cards -->
+<h4 class="mb-3 text-white" data-aos="fade-right">Recently Added Cards</h4>
+{% if stats.recent %}
+  <div class="row g-4">
+    {% for c in stats.recent %}
+      <div class="col-md-6" data-aos="fade-up">
+        <div class="glass-card p-3 glow-hover" role="button" data-bs-toggle="modal" data-bs-target="#previewModal"
              data-id="{{ c.id }}" data-name="{{ c.character_name }}" data-form="{{ c.form }}" data-date="{{ c.created_at }}">
           <strong class="text-white">#{{ c.id }}</strong> — <span class="text-white">{{ c.character_name }}</span>
           <small class="text-muted">({{ c.form|capitalize }})</small><br>
           <small class="text-muted">Added: {{ c.created_at }}</small>
         </div>
-      {% endfor %}
-    {% else %}
-      <div class="glass-card text-center text-muted py-4" data-aos="fade-up">
-        <i class="fas fa-info-circle fa-2x mb-2"></i>
-        <p>No cards added yet. Use <strong>Add Card</strong> to begin.</p>
       </div>
-    {% endif %}
+    {% endfor %}
   </div>
-</div>
+{% else %}
+  <div class="glass-card text-center text-muted py-4" data-aos="fade-up">
+    <i class="fas fa-info-circle fa-2x mb-2"></i>
+    <p>No cards added yet. Use <strong>Add Card</strong> to begin.</p>
+  </div>
+{% endif %}
 
 <!-- Pending Submissions -->
 <h4 class="mb-3 text-white mt-5 text-center" data-aos="fade-down">Pending Submissions</h4>
