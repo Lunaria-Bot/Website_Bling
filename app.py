@@ -367,7 +367,7 @@ def edit_user(user_id):
 
     return render_template("edit_user.html", user=user)
  # --- Update User ---    
-  @app.route("/update_user", methods=["POST"])
+@app.route("/update_user", methods=["POST"])
 def update_user():
     user_id = request.form["user_id"]
     username = request.form["username"]
