@@ -24,7 +24,7 @@
           </a>
         </li>
         <li class="nav-item mb-2">
-          <a class="nav-link text-light {% if request.endpoint == 'edit_card' %}fw-bold text-primary{% endif %}" href="#">
+          <a class="nav-link text-light {% if request.endpoint == 'edit_card_list' %}fw-bold text-primary{% endif %}" href="{{ url_for('edit_card_list') }}">
             <i class="fas fa-edit me-2"></i> Edit Card
           </a>
         </li>
