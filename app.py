@@ -260,6 +260,42 @@ def search_player():
         return redirect(url_for("player_profile", discord_id=discord_id))
 
     return render_template("search_player.html")
+# --- Card Maker Submission ---
+@app.route("/submit_card", methods=["GET", "POST"])
+def submit_card():
+    if session.get("role") != "card_maker":
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        title = request.form["title"]
+        description = request.form["description"]
+        image_url = request.form["image_url"]
+
+        async def queue_card():
+            async with db_pool.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO card_queue (title, description, image_url, submitted_by)
+                    VALUES ($1, $2, $3, $4)
+                """, title, description, image_url, session["username"])
+
+        loop.run_until_complete(queue_card())
+        flash("✅ Card submitted and awaiting admin validation.")
+        return redirect(url_for("submit_card"))
+
+    return render_template("submit_card.html")
+
+# --- Admin View: Validate Submitted Cards ---
+@app.route("/validate_cards")
+def validate_cards():
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    async def fetch_pending():
+        async with db_pool.acquire() as conn:
+            return await conn.fetch("SELECT * FROM card_queue WHERE status = 'pending'")
+
+    cards = loop.run_until_complete(fetch_pending())
+    return render_template("validate_cards.html", cards=cards)
 
 # --- Run Server ---
 if __name__ == "__main__":
