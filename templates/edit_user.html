@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Edit User{% endblock %}
+
+{% block content %}
+<div class="container-xl">
+  <h1 class="page-title text-center mb-5" data-aos="fade-down">Edit User</h1>
+
+  <div class="row justify-content-center">
+    <div class="col-md-6" data-aos="fade-up">
+      <div class="glass-card p-4">
+        <form method="POST" action="{{ url_for('update_user') }}">
+          <input type="hidden" name="user_id" value="{{ user.id }}">
+
+          <div class="text-center mb-4">
+            <img src="/static/default_avatar.png" alt="Avatar" class="img-fluid rounded-circle shadow" style="width: 100px; height: 100px;">
+          </div>
+
+          <div class="mb-3">
+            <label for="username" class="form-label text-light">Username</label>
+            <input type="text" class="form-control bg-dark text-light border-secondary" id="username" name="username" value="{{ user.username }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="role" class="form-label text-light">Role</label>
+            <select class="form-select bg-dark text-light border-secondary" id="role" name="role" required>
+              <option value="admin" {% if user.role == "admin" %}selected{% endif %}>Admin</option>
+              <option value="card_maker" {% if user.role == "card_maker" %}selected{% endif %}>Card Maker</option>
+              <option value="viewer" {% if user.role == "viewer" %}selected{% endif %}>Viewer</option>
+            </select>
+          </div>
+
+          <div class="d-flex justify-content-between mt-4">
+            <a href="{{ url_for('manage') }}" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left me-1"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-1"></i> Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
