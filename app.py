@@ -218,6 +218,7 @@ def add_card_to_player():
 
     player_id = request.form.get("player_id")
     card_id = request.form.get("card_id")
+    discord_id = request.form.get("discord_id")
 
     async def assign_card():
         async with db_pool.acquire() as conn:
@@ -225,7 +226,7 @@ def add_card_to_player():
 
     loop.run_until_complete(assign_card())
     flash("✅ Card assigned to player!")
-    return redirect(url_for("player_profile", discord_id=request.form.get("discord_id")))
+    return redirect(url_for("player_profile", discord_id=discord_id))
 
 @app.route("/remove_card_from_player", methods=["POST"])
 def remove_card_from_player():
@@ -242,3 +243,20 @@ def remove_card_from_player():
     loop.run_until_complete(unassign_card())
     flash("🗑️ Card removed from player.")
     return redirect(url_for("player_profile", discord_id=discord_id))
+
+# --- Search Player ---
+@app.route("/search_player", methods=["GET", "POST"])
+def search_player():
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        discord_id = request.form.get("discord_id")
+        return redirect(url_for("player_profile", discord_id=discord_id))
+
+    return render_template("search_player.html")
+
+# --- Run Server ---
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+
