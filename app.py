@@ -339,6 +339,12 @@ def search_player():
 
     return render_template("search_player.html")
 
+# --- Manager ---    
+@app.route("/manage")
+def manage():
+    users = get_all_users()  # Replace with your actual user-fetching logic
+    return render_template("manage.html", users=users)
+
 # --- Run Server ---
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
