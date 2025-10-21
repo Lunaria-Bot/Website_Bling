@@ -2,66 +2,76 @@
 {% block title %}Player Profile{% endblock %}
 
 {% block content %}
-<h1 class="page-title text-center" data-aos="fade-down">Player Profile</h1>
+<div class="container-xl">
+  <h1 class="page-title text-center mb-5" data-aos="fade-down">Player Profile</h1>
 
-<!-- Player Info -->
-<div class="glass-card p-4 mb-5 mx-auto" style="max-width: 600px;" data-aos="fade-up">
-  <h4 class="text-info">{{ player.username }}</h4>
-  <p><strong>Discord ID:</strong> {{ player.discord_id }}</p>
-  <p><strong>XP:</strong> {{ player.xp }} / {{ player.xp_max }}</p>
-  <p><strong>Level:</strong> {{ player.level }}</p>
-  <p><strong>Created:</strong> {{ player.created_at }}</p>
-  <p><strong>Last Updated:</strong> {{ player.updated_at }}</p>
-</div>
-
-<!-- Owned Cards -->
-<h4 class="mb-3 text-white" data-aos="fade-right">Owned Cards</h4>
-{% if cards %}
-  <div class="row g-4 mb-5">
-    {% for card in cards %}
-      <div class="col-md-4" data-aos="fade-up">
-        <div class="glass-card p-3 text-center">
-          <img src="{{ card.image_url }}" alt="Card Image" class="img-fluid rounded mb-2">
-          <h5 class="text-info">{{ card.character_name }}</h5>
-          <p class="text-muted">Form: {{ card.form|capitalize }}</p>
-          <form method="POST" action="{{ url_for('remove_card_from_player') }}">
-            <input type="hidden" name="card_id" value="{{ card.id }}">
-            <input type="hidden" name="discord_id" value="{{ player.discord_id }}">
-            <button type="submit" class="btn btn-outline-danger btn-sm mt-2">Remove</button>
-          </form>
-        </div>
+  <!-- Player Info -->
+  <div class="row justify-content-center mb-5">
+    <div class="col-lg-6 col-md-8" data-aos="fade-up">
+      <div class="glass-card p-4">
+        <h4 class="text-info">{{ player.username }}</h4>
+        <p><strong>Discord ID:</strong> {{ player.discord_id }}</p>
+        <p><strong>XP:</strong> {{ player.xp }} / {{ player.xp_max }}</p>
+        <p><strong>Level:</strong> {{ player.level }}</p>
+        <p><strong>Created:</strong> {{ player.created_at }}</p>
+        <p><strong>Last Updated:</strong> {{ player.updated_at }}</p>
       </div>
-    {% endfor %}
+    </div>
   </div>
-{% else %}
-  <div class="glass-card text-center text-muted py-4" data-aos="fade-up">
-    <i class="fas fa-info-circle fa-2x mb-2"></i>
-    <p>This player has no cards assigned.</p>
-  </div>
-{% endif %}
 
-<!-- Assign New Card -->
-<h4 class="mb-3 text-white" data-aos="fade-right">Assign New Card</h4>
-{% if all_cards %}
-  <form method="POST" action="{{ url_for('add_card_to_player') }}" class="glass-card p-4 mb-5" data-aos="fade-up">
-    <input type="hidden" name="player_id" value="{{ player.id }}">
-    <input type="hidden" name="discord_id" value="{{ player.discord_id }}">
-    <div class="mb-3">
-      <label for="card_id" class="form-label text-light">Select Card</label>
-      <select class="form-select bg-dark text-light border-secondary" name="card_id" required>
-        {% for c in all_cards %}
-          <option value="{{ c.id }}">{{ c.character_name }}</option>
-        {% endfor %}
-      </select>
+  <!-- Owned Cards -->
+  <h4 class="mb-3 text-white text-center" data-aos="fade-right">Owned Cards</h4>
+  {% if cards %}
+    <div class="row justify-content-center g-4 mb-5">
+      {% for card in cards %}
+        <div class="col-lg-4 col-md-6" data-aos="fade-up">
+          <div class="glass-card p-3 text-center">
+            <img src="{{ card.image_url }}" alt="Card Image" class="img-fluid rounded mb-2">
+            <h5 class="text-info">{{ card.character_name }}</h5>
+            <p class="text-muted">Form: {{ card.form|capitalize }}</p>
+            <form method="POST" action="{{ url_for('remove_card_from_player') }}">
+              <input type="hidden" name="card_id" value="{{ card.id }}">
+              <input type="hidden" name="discord_id" value="{{ player.discord_id }}">
+              <button type="submit" class="btn btn-outline-danger btn-sm mt-2">Remove</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
     </div>
-    <div class="text-end">
-      <button type="submit" class="btn btn-success px-4">Assign</button>
+  {% else %}
+    <div class="glass-card text-center text-muted py-4 mx-auto" style="max-width: 500px;" data-aos="fade-up">
+      <i class="fas fa-info-circle fa-2x mb-2"></i>
+      <p>This player has no cards assigned.</p>
     </div>
-  </form>
-{% else %}
-  <div class="glass-card text-center text-muted py-4" data-aos="fade-up">
-    <i class="fas fa-layer-group fa-2x mb-2"></i>
-    <p>No available cards to assign.</p>
-  </div>
-{% endif %}
+  {% endif %}
+
+  <!-- Assign New Card -->
+  <h4 class="mb-3 text-white text-center" data-aos="fade-right">Assign New Card</h4>
+  {% if all_cards %}
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-6 col-md-8" data-aos="fade-up">
+        <form method="POST" action="{{ url_for('add_card_to_player') }}" class="glass-card p-4">
+          <input type="hidden" name="player_id" value="{{ player.id }}">
+          <input type="hidden" name="discord_id" value="{{ player.discord_id }}">
+          <div class="mb-3">
+            <label for="card_id" class="form-label text-light">Select Card</label>
+            <select class="form-select bg-dark text-light border-secondary" name="card_id" required>
+              {% for c in all_cards %}
+                <option value="{{ c.id }}">{{ c.character_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="text-end">
+            <button type="submit" class="btn btn-success px-4">Assign</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  {% else %}
+    <div class="glass-card text-center text-muted py-4 mx-auto" style="max-width: 500px;" data-aos="fade-up">
+      <i class="fas fa-layer-group fa-2x mb-2"></i>
+      <p>No available cards to assign.</p>
+    </div>
+  {% endif %}
+</div>
 {% endblock %}
