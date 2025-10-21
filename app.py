@@ -326,6 +326,33 @@ def search_player():
         return redirect(url_for("player_profile", discord_id=discord_id))
 
     return render_template("search_player.html")
+# --- Review Submissionr ---
+@app.route("/review_submissions", methods=["GET", "POST"])
+def review_submissions():
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        card_id = int(request.form["card_id"])
+        action = request.form["action"]
+
+        async def update_status():
+            async with db_pool.acquire() as conn:
+                await conn.execute(
+                    "UPDATE card_queue SET status=$1 WHERE id=$2",
+                    action, card_id
+                )
+
+        loop.run_until_complete(update_status())
+        flash(f"✅ Card #{card_id} marked as {action}.")
+        return redirect(url_for("review_submissions"))
+
+    async def fetch_pending():
+        async with db_pool.acquire() as conn:
+            return await conn.fetch("SELECT * FROM card_queue WHERE status = 'pending' ORDER BY created_at DESC")
+
+    cards = loop.run_until_complete(fetch_pending())
+    return render_template("review_submissions.html", cards=cards)
 
 # --- Run Server ---
 if __name__ == "__main__":
