@@ -3,36 +3,52 @@
 
 {% block content %}
 <div class="container-xl">
-  <h1 class="page-title text-center mb-5" data-aos="fade-down">Player Profile</h1>
+  <h1 class="page-title text-center mb-5" data-aos="fade-down">{{ player.username }}</h1>
 
   <!-- Player Info -->
-  <div class="row justify-content-center mb-5">
-    <div class="col-lg-6 col-md-8" data-aos="fade-up">
-      <div class="glass-card p-4">
-        <h4 class="text-info">{{ player.username }}</h4>
-        <p><strong>Discord ID:</strong> {{ player.discord_id }}</p>
-        <p><strong>XP:</strong> {{ player.xp }} / {{ player.xp_max }}</p>
-        <p><strong>Level:</strong> {{ player.level }}</p>
-        <p><strong>Created:</strong> {{ player.created_at }}</p>
-        <p><strong>Last Updated:</strong> {{ player.updated_at }}</p>
+  <div class="glass-card p-4 mb-5" data-aos="fade-up">
+    <div class="row align-items-center">
+      <div class="col-md-4 text-center">
+        <img src="{{ player.avatar_url or '/static/default_avatar.png' }}" class="img-fluid rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover; border: 2px solid #00c3ff;">
+        <p class="text-muted">Discord ID: {{ player.discord_id }}</p>
+      </div>
+      <div class="col-md-8">
+        <div class="row text-center mb-3">
+          <div class="col">
+            <i class="fas fa-coins text-danger"></i>
+            <strong class="text-white">{{ player.bloodcoins | int | format }}</strong>
+            <small class="text-muted d-block">BloodCoins</small>
+          </div>
+          <div class="col">
+            <i class="fas fa-gem text-warning"></i>
+            <strong class="text-white">{{ player.noblecoins | int | format }}</strong>
+            <small class="text-muted d-block">NobleCoins</small>
+          </div>
+        </div>
+        <p><strong class="text-light">Level:</strong> Lv. {{ player.level }} | {{ player.xp }}/{{ player.xp_max or 172 }} XP</p>
+        <div class="progress bg-secondary mb-2" style="height: 8px;">
+          <div class="progress-bar bg-warning" role="progressbar" style="width: {{ (player.xp / (player.xp_max or 172) * 100) | round(0) }}%;"></div>
+        </div>
+        <p><strong class="text-light">Achievements:</strong> {{ player.achievements or 'None' }}</p>
+        <p><strong class="text-light">Created:</strong> {{ player.created_at }}</p>
+        <p><strong class="text-light">Last Update:</strong> {{ player.updated_at }}</p>
       </div>
     </div>
   </div>
 
-  <!-- Owned Cards -->
-  <h4 class="mb-3 text-white text-center" data-aos="fade-right">Owned Cards</h4>
+  <!-- Card Collection -->
+  <h4 class="text-white mb-3 text-center" data-aos="fade-right">Card Collection</h4>
   {% if cards %}
-    <div class="row justify-content-center g-4 mb-5">
+    <div class="row g-4 justify-content-center mb-5">
       {% for card in cards %}
-        <div class="col-lg-4 col-md-6" data-aos="fade-up">
-          <div class="glass-card p-3 text-center">
-            <img src="{{ card.image_url }}" alt="Card Image" class="img-fluid rounded mb-2">
-            <h5 class="text-info">{{ card.character_name }}</h5>
-            <p class="text-muted">Form: {{ card.form|capitalize }}</p>
+        <div class="col-md-4 col-lg-3" data-aos="zoom-in">
+          <div class="glass-card text-center p-3 glow-hover">
+            <img src="{{ card.image_url }}" class="img-fluid mb-2" style="max-height: 180px;">
+            <p class="text-light">{{ card.character_name }}</p>
             <form method="POST" action="{{ url_for('remove_card_from_player') }}">
               <input type="hidden" name="card_id" value="{{ card.id }}">
               <input type="hidden" name="discord_id" value="{{ player.discord_id }}">
-              <button type="submit" class="btn btn-outline-danger btn-sm mt-2">Remove</button>
+              <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
             </form>
           </div>
         </div>
@@ -41,12 +57,12 @@
   {% else %}
     <div class="glass-card text-center text-muted py-4 mx-auto" style="max-width: 500px;" data-aos="fade-up">
       <i class="fas fa-info-circle fa-2x mb-2"></i>
-      <p>This player has no cards assigned.</p>
+      <p>No cards assigned yet.</p>
     </div>
   {% endif %}
 
   <!-- Assign New Card -->
-  <h4 class="mb-3 text-white text-center" data-aos="fade-right">Assign New Card</h4>
+  <h4 class="text-white mt-5 mb-3 text-center" data-aos="fade-right">Assign New Card</h4>
   {% if all_cards %}
     <div class="row justify-content-center mb-5">
       <div class="col-lg-6 col-md-8" data-aos="fade-up">
@@ -54,8 +70,8 @@
           <input type="hidden" name="player_id" value="{{ player.id }}">
           <input type="hidden" name="discord_id" value="{{ player.discord_id }}">
           <div class="mb-3">
-            <label for="card_id" class="form-label text-light">Select Card</label>
-            <select class="form-select bg-dark text-light border-secondary" name="card_id" required>
+            <label class="form-label text-light">Select Card</label>
+            <select name="card_id" class="form-select bg-dark text-light border-secondary" required>
               {% for c in all_cards %}
                 <option value="{{ c.id }}">{{ c.character_name }}</option>
               {% endfor %}
