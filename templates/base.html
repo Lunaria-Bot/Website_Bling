@@ -81,20 +81,12 @@
       backdrop-filter: blur(8px);
       border-bottom: 1px solid rgba(255,255,255,0.1);
       padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
 
     .header-bar .logo {
       font-family: 'Orbitron', sans-serif;
       font-size: 1.5rem;
       color: #7f00ff;
-    }
-
-    .header-bar .user-role {
-      font-size: 0.9rem;
-      color: #ccc;
     }
 
     .text-white { color: #fff !important; }
@@ -143,15 +135,19 @@
   </div>
 
   <!-- Header -->
-  <div class="header-bar d-flex flex-column align-items-center text-center">
-  <div class="logo mb-1">Warp Gate Dashboard</div>
-  <div class="user-role text-muted small">
-    Logged in as <strong>{{ session.username }}</strong> ({{ session.role }}) —
-    <a href="{{ url_for('logout') }}" class="text-danger text-decoration-none ms-1">
-      <i class="fas fa-sign-out-alt"></i> Logout
-    </a>
+  <div class="header-bar">
+    <div class="container-fluid d-flex justify-content-center align-items-center flex-wrap gap-3">
+      <div class="logo">Warp Gate Dashboard</div>
+      {% if session.username %}
+        <div class="text-muted small">
+          Logged in as <strong>{{ session.username }}</strong> ({{ session.role }}) —
+          <a href="{{ url_for('logout') }}" class="text-danger text-decoration-none ms-2">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </a>
+        </div>
+      {% endif %}
+    </div>
   </div>
-</div>
 
   <!-- Main Content -->
   <div class="main-content">
