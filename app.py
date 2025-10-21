@@ -13,7 +13,7 @@ db_pool = loop.run_until_complete(asyncpg.create_pool(
     ssl="require"
 ))
 
-# --- Authentication ---
+# --- Admin + Card Maker Login ---
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -33,11 +33,41 @@ def login():
             session["username"] = admin["username"]
             session["role"] = admin["role"]
             flash("✅ Logged in successfully!")
-            return redirect(url_for("admin_dashboard"))
+            if admin["role"] == "admin":
+                return redirect(url_for("admin_dashboard"))
+            elif admin["role"] == "card_maker":
+                return redirect(url_for("submit_card"))
+            else:
+                flash("❌ Unknown role")
         else:
             flash("❌ Invalid credentials")
 
     return render_template("login.html")
+
+@app.route("/cardmaker_login", methods=["GET", "POST"])
+def cardmaker_login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        async def fetch_user():
+            async with db_pool.acquire() as conn:
+                return await conn.fetchrow(
+                    "SELECT id, username, password_hash, role FROM admins WHERE username=$1",
+                    username
+                )
+
+        user = loop.run_until_complete(fetch_user())
+        if user and user["role"] == "card_maker" and check_password_hash(user["password_hash"], password):
+            session["user_id"] = user["id"]
+            session["username"] = user["username"]
+            session["role"] = user["role"]
+            flash("✅ Logged in as Card Maker")
+            return redirect(url_for("submit_card"))
+        else:
+            flash("❌ Invalid credentials or role")
+
+    return render_template("cardmaker_login.html")
 
 @app.route("/logout")
 def logout():
@@ -48,7 +78,7 @@ def logout():
 # --- Admin Dashboard ---
 @app.route("/admin")
 def admin_dashboard():
-    if not session.get("user_id"):
+    if session.get("role") != "admin":
         return redirect(url_for("login"))
 
     async def fetch_stats_and_recent():
@@ -72,10 +102,46 @@ def admin_dashboard():
     stats = loop.run_until_complete(fetch_stats_and_recent())
     return render_template("admin_dashboard.html", user=session.get("username"), stats=stats)
 
-# --- Add Card ---
+# --- Card Maker Submission ---
+@app.route("/submit_card", methods=["GET", "POST"])
+def submit_card():
+    if session.get("role") != "card_maker":
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        title = request.form["title"]
+        description = request.form["description"]
+        image_url = request.form["image_url"]
+
+        async def queue_card():
+            async with db_pool.acquire() as conn:
+                await conn.execute("""
+                    INSERT INTO card_queue (title, description, image_url, submitted_by)
+                    VALUES ($1, $2, $3, $4)
+                """, title, description, image_url, session["username"])
+
+        loop.run_until_complete(queue_card())
+        flash("✅ Card submitted and awaiting admin validation.")
+        return redirect(url_for("submit_card"))
+
+    return render_template("submit_card.html")
+
+# --- Admin View: Validate Submitted Cards ---
+@app.route("/validate_cards")
+def validate_cards():
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    async def fetch_pending():
+        async with db_pool.acquire() as conn:
+            return await conn.fetch("SELECT * FROM card_queue WHERE status = 'pending'")
+
+    cards = loop.run_until_complete(fetch_pending())
+    return render_template("validate_cards.html", cards=cards)
+# --- Add Card (Admin Only) ---
 @app.route("/", methods=["GET", "POST"])
 def add_card():
-    if not session.get("user_id"):
+    if session.get("role") != "admin":
         return redirect(url_for("login"))
 
     if request.method == "POST":
@@ -130,7 +196,7 @@ def history():
 # --- Edit Card List ---
 @app.route("/edit_card_list")
 def edit_card_list():
-    if not session.get("user_id"):
+    if session.get("role") != "admin":
         return redirect(url_for("login"))
 
     async def fetch_all_cards():
@@ -143,7 +209,7 @@ def edit_card_list():
 # --- Edit Specific Card ---
 @app.route("/edit/<int:card_id>", methods=["GET", "POST"])
 def edit_card(card_id):
-    if not session.get("user_id"):
+    if session.get("role") != "admin":
         return redirect(url_for("login"))
 
     async def fetch_card():
@@ -176,7 +242,7 @@ def edit_card(card_id):
 # --- Delete Card ---
 @app.route("/delete_card", methods=["POST"])
 def delete_card():
-    if not session.get("user_id"):
+    if session.get("role") != "admin":
         return redirect(url_for("login"))
 
     card_id = request.form.get("card_id")
@@ -218,7 +284,7 @@ def player_profile(discord_id):
 
 @app.route("/add_card_to_player", methods=["POST"])
 def add_card_to_player():
-    if not session.get("user_id"):
+    if session.get("role") != "admin":
         return redirect(url_for("login"))
 
     player_id = request.form.get("player_id")
@@ -235,7 +301,7 @@ def add_card_to_player():
 
 @app.route("/remove_card_from_player", methods=["POST"])
 def remove_card_from_player():
-    if not session.get("user_id"):
+    if session.get("role") != "admin":
         return redirect(url_for("login"))
 
     card_id = request.form.get("card_id")
@@ -260,42 +326,6 @@ def search_player():
         return redirect(url_for("player_profile", discord_id=discord_id))
 
     return render_template("search_player.html")
-# --- Card Maker Submission ---
-@app.route("/submit_card", methods=["GET", "POST"])
-def submit_card():
-    if session.get("role") != "card_maker":
-        return redirect(url_for("login"))
-
-    if request.method == "POST":
-        title = request.form["title"]
-        description = request.form["description"]
-        image_url = request.form["image_url"]
-
-        async def queue_card():
-            async with db_pool.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO card_queue (title, description, image_url, submitted_by)
-                    VALUES ($1, $2, $3, $4)
-                """, title, description, image_url, session["username"])
-
-        loop.run_until_complete(queue_card())
-        flash("✅ Card submitted and awaiting admin validation.")
-        return redirect(url_for("submit_card"))
-
-    return render_template("submit_card.html")
-
-# --- Admin View: Validate Submitted Cards ---
-@app.route("/validate_cards")
-def validate_cards():
-    if session.get("role") != "admin":
-        return redirect(url_for("login"))
-
-    async def fetch_pending():
-        async with db_pool.acquire() as conn:
-            return await conn.fetch("SELECT * FROM card_queue WHERE status = 'pending'")
-
-    cards = loop.run_until_complete(fetch_pending())
-    return render_template("validate_cards.html", cards=cards)
 
 # --- Run Server ---
 if __name__ == "__main__":
