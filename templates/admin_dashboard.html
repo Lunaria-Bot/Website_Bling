@@ -103,6 +103,7 @@
         <img src="{{ card.image_url }}" alt="Card Image" class="img-fluid mb-3 rounded">
         <h5 class="text-info">{{ card.title }}</h5>
         <p class="text-light">{{ card.description }}</p>
+        <p class="text-muted"><strong>Form:</strong> {{ card.form_type|capitalize }}</p>
         <p class="text-muted"><strong>Submitted by:</strong> {{ card.submitted_by }}</p>
         <form method="POST" action="{{ url_for('review_submissions') }}" class="d-flex justify-content-between">
           <input type="hidden" name="card_id" value="{{ card.id }}">
