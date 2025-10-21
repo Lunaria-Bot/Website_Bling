@@ -1,13 +1,151 @@
-<!DOCTYPE html>
-<html>
-<head><title>Submit Card</title></head>
-<body>
-  <h2>Submit a Card</h2>
-  <form method="POST">
-    <input type="text" name="title" placeholder="Card Title" required><br>
-    <input type="text" name="description" placeholder="Description" required><br>
-    <input type="text" name="image_url" placeholder="Image URL" required><br>
-    <button type="submit">Submit</button>
-  </form>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Submit Card{% endblock %}
+
+{% block content %}
+<div class="row">
+  <!-- Sidebar -->
+  <div class="col-md-3" data-aos="fade-right">
+    <div class="glass-card p-3">
+      <h5 class="text-light mb-4">Navigation</h5>
+      <ul class="nav flex-column">
+        <li class="nav-item mb-2">
+          <a class="nav-link text-light fw-bold text-primary" href="{{ url_for('submit_card') }}">
+            <i class="fas fa-plus me-2"></i> Submit Card
+          </a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link text-light" href="{{ url_for('logout') }}">
+            <i class="fas fa-sign-out-alt me-2"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Form Content -->
+  <div class="col-md-9">
+    <h1 class="page-title" data-aos="fade-down">Submit a New Card</h1>
+
+    <form method="POST" action="{{ url_for('submit_card') }}">
+      <div class="glass-card p-4" data-aos="fade-up">
+        <div class="mb-3" data-aos="fade-up" data-aos-delay="100">
+          <label for="character_name" class="form-label text-light">Character Name</label>
+          <input type="text" class="form-control bg-dark text-light border-secondary" id="character_name" name="title" required>
+        </div>
+
+        <div class="mb-3" data-aos="fade-up" data-aos-delay="200">
+          <label for="form" class="form-label text-light">Form Type</label>
+          <select class="form-select bg-dark text-light border-secondary" id="form" name="form_type" required>
+            <option value="base">Base</option>
+            <option value="awakened">Awakened</option>
+            <option value="event">Event</option>
+          </select>
+        </div>
+
+        <div class="mb-3" data-aos="fade-up" data-aos-delay="300">
+          <label for="description" class="form-label text-light">Description</label>
+          <textarea class="form-control bg-dark text-light border-secondary" id="description" name="description" rows="4"></textarea>
+        </div>
+
+        <div class="mb-3" data-aos="fade-up" data-aos-delay="350">
+          <label for="image_link" class="form-label text-light">Image Link</label>
+          <input type="url" class="form-control bg-dark text-light border-secondary" id="image_link" name="image_url" placeholder="https://..." required>
+          <div id="linkFeedback" class="form-text text-danger mt-1 d-none">⚠️ Invalid image link</div>
+        </div>
+
+        <div class="text-end" data-aos="fade-up" data-aos-delay="400">
+          <button type="submit" class="btn btn-primary px-4">Submit Card</button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Live Preview -->
+    <div class="card-preview mt-5 mx-auto" data-aos="fade-up" data-aos-delay="500">
+      <img id="previewImage" src="" alt="Preview" class="d-none">
+      <div class="info">
+        <h5 id="previewName" class="text-info">—</h5>
+        <p><strong>Form:</strong> <span id="previewForm" class="text-warning">—</span></p>
+        <p id="previewDesc" class="text-white">—</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+  .card-preview {
+    width: 436px;
+    height: 615px;
+    background-color: rgba(20, 20, 30, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(107,107,255,0.3);
+    position: relative;
+  }
+
+  .card-preview img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .card-preview .info {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+    font-size: 0.9rem;
+  }
+
+  .text-white {
+    color: #fff !important;
+  }
+</style>
+
+<script>
+  const nameInput = document.getElementById('character_name');
+  const formSelect = document.getElementById('form');
+  const descInput = document.getElementById('description');
+  const linkInput = document.getElementById('image_link');
+
+  const previewName = document.getElementById('previewName');
+  const previewForm = document.getElementById('previewForm');
+  const previewDesc = document.getElementById('previewDesc');
+  const previewImage = document.getElementById('previewImage');
+  const linkFeedback = document.getElementById('linkFeedback');
+
+  nameInput.addEventListener('input', () => {
+    previewName.textContent = nameInput.value || '—';
+  });
+
+  formSelect.addEventListener('change', () => {
+    previewForm.textContent = formSelect.value || '—';
+  });
+
+  descInput.addEventListener('input', () => {
+    previewDesc.textContent = descInput.value || '—';
+  });
+
+  linkInput.addEventListener('input', () => {
+    const url = linkInput.value;
+    if (url && url.startsWith('http')) {
+      previewImage.src = url;
+      previewImage.classList.remove('d-none');
+      previewImage.onerror = () => {
+        previewImage.classList.add('d-none');
+        linkFeedback.classList.remove('d-none');
+      };
+      previewImage.onload = () => {
+        linkFeedback.classList.add('d-none');
+      };
+    } else {
+      previewImage.classList.add('d-none');
+      linkFeedback.classList.remove('d-none');
+    }
+  });
+</script>
+{% endblock %}
