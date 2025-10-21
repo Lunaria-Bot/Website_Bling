@@ -2,50 +2,59 @@
 {% block title %}Card History{% endblock %}
 
 {% block content %}
-  <h1 class="page-title">Card History</h1>
+<div class="container-xl">
+  <h1 class="page-title text-center mb-5" data-aos="fade-down">Card History</h1>
 
   <!-- Filters -->
-  <form method="get" class="row mb-4 g-2 glass-card">
-    <div class="col-md-3">
-      <select name="form" class="form-select">
+  <form method="get" class="row mb-4 g-3 glass-card p-3" data-aos="fade-up">
+    <div class="col-md-4">
+      <select name="form" class="form-select bg-dark text-light border-secondary">
         <option value="all" {% if form_filter == "all" or not form_filter %}selected{% endif %}>All Forms</option>
         <option value="base" {% if form_filter == "base" %}selected{% endif %}>Base</option>
         <option value="awakened" {% if form_filter == "awakened" %}selected{% endif %}>Awakened</option>
         <option value="event" {% if form_filter == "event" %}selected{% endif %}>Event</option>
       </select>
     </div>
-    <div class="col-md-5">
-      <input type="text" name="search" class="form-control" placeholder="Search by character name" value="{{ search or '' }}">
+    <div class="col-md-6">
+      <input type="text" name="search" class="form-control bg-dark text-light border-secondary" placeholder="Search by character name" value="{{ search or '' }}">
     </div>
     <div class="col-md-2">
-      <button type="submit" class="btn btn-primary w-100">Filter</button>
+      <button type="submit" class="btn btn-primary w-100">
+        <i class="fas fa-filter me-1"></i> Filter
+      </button>
     </div>
   </form>
 
-  <!-- Card List -->
+  <!-- Card Grid -->
   <div class="row g-4">
     {% for c in cards %}
-      <div class="col-md-6">
-        <div class="glass-card d-flex flex-column flex-md-row align-items-center">
-          <div class="me-md-4 mb-3 mb-md-0 text-center">
+      <div class="col-md-6 col-lg-4" data-aos="fade-up">
+        <div class="glass-card p-3 h-100 d-flex flex-column justify-content-between glow-hover">
+          <div class="text-center mb-3">
             <img src="{{ c.image_url }}" alt="{{ c.character_name }}" class="img-fluid rounded shadow" style="max-height: 180px;">
           </div>
-          <div class="flex-grow-1">
-            <h5 class="mb-1">
+          <div>
+            <h5 class="text-info mb-1">
               <span class="badge bg-secondary me-2">#{{ c.id }}</span>
               {{ c.character_name }}
               <small class="text-muted">({{ c.form|capitalize }})</small>
             </h5>
-            <p class="text-muted mb-1">{{ c.description }}</p>
+            <p class="text-muted mb-2">{{ c.description }}</p>
             <small class="text-muted">Added: {{ c.created_at }}</small>
           </div>
-          <div class="ms-md-3 mt-3 mt-md-0">
-            <a href="{{ url_for('edit_card', card_id=c.id) }}" class="btn btn-sm btn-primary">Edit</a>
+          <div class="text-end mt-3">
+            <a href="{{ url_for('edit_card', card_id=c.id) }}" class="btn btn-sm btn-outline-light">
+              <i class="fas fa-edit me-1"></i> Edit
+            </a>
           </div>
         </div>
       </div>
     {% else %}
-      <p class="text-muted">No cards found.</p>
+      <div class="glass-card text-center text-muted py-4 mx-auto" style="max-width: 500px;" data-aos="fade-up">
+        <i class="fas fa-info-circle fa-2x mb-2"></i>
+        <p>No cards found.</p>
+      </div>
     {% endfor %}
   </div>
+</div>
 {% endblock %}
