@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="container-xl">
-  <h1 class="page-title text-center mb-5" data-aos="fade-down">{{ player.username }}</h1>
+  {% if player.username %}   <h1 class="page-title text-center mb-5" data-aos="fade-down">{{ player.username }}</h1> {% endif %}
 
   <!-- Player Info -->
   <div class="glass-card p-4 mb-5" data-aos="fade-up">
