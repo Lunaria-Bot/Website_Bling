@@ -349,7 +349,8 @@ def manage():
             )
 
     admins = loop.run_until_complete(fetch_all_admins())
-    return render_template("manage.html", users=admins)    
+    return render_template("manage.html", users=admins)
+    
 # --- Run Server ---
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
