@@ -28,6 +28,11 @@
             <i class="fas fa-edit me-2"></i> Edit Card
           </a>
         </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link text-light {% if request.endpoint == 'search_player' %}fw-bold text-primary{% endif %}" href="{{ url_for('search_player') }}">
+            <i class="fas fa-user-search me-2"></i> Search Player
+          </a>
+        </li>
         <li class="nav-item">
           <span class="nav-link text-muted"><i class="fas fa-cogs me-2"></i> Manage (soon)</span>
         </li>
