@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Review Submissions{% endblock %}
+
+{% block content %}
+<h1 class="page-title" data-aos="fade-down">Review Submitted Cards</h1>
+
+{% if cards %}
+  <div class="row">
+    {% for card in cards %}
+      <div class="col-md-6 mb-4" data-aos="fade-up">
+        <div class="glass-card p-3">
+          <img src="{{ card.image_url }}" alt="Card Image" class="img-fluid mb-3">
+          <h5 class="text-info">{{ card.title }}</h5>
+          <p class="text-light">{{ card.description }}</p>
+          <p class="text-muted"><strong>Submitted by:</strong> {{ card.submitted_by }}</p>
+
+          <form method="POST" class="d-flex justify-content-between">
+            <input type="hidden" name="card_id" value="{{ card.id }}">
+            <button name="action" value="approved" class="btn btn-success">Approve</button>
+            <button name="action" value="rejected" class="btn btn-danger">Decline</button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-muted">No pending submissions at the moment.</p>
+{% endif %}
+{% endblock %}
