@@ -94,6 +94,34 @@
   </div>
 </div>
 
+<!-- Pending Submissions -->
+<h4 class="mb-3 text-white mt-5" data-aos="fade-right">Pending Submissions</h4>
+{% if stats.pending %}
+  <div class="row">
+    {% for card in stats.pending %}
+      <div class="col-md-6 mb-4" data-aos="fade-up">
+        <div class="glass-card p-3">
+          <img src="{{ card.image_url }}" alt="Card Image" class="img-fluid mb-3 rounded">
+          <h5 class="text-info">{{ card.title }}</h5>
+          <p class="text-light">{{ card.description }}</p>
+          <p class="text-muted"><strong>Submitted by:</strong> {{ card.submitted_by }}</p>
+          <form method="POST" action="{{ url_for('review_submissions') }}" class="d-flex justify-content-between">
+            <input type="hidden" name="card_id" value="{{ card.id }}">
+            <button name="action" value="approved" class="btn btn-success">Approve</button>
+            <button name="action" value="rejected" class="btn btn-danger">Decline</button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="glass-card text-center text-muted py-4" data-aos="fade-up">
+    <i class="fas fa-inbox fa-2x mb-2"></i>
+    <p>No pending submissions. Cards submitted by Card Makers will appear here.</p>
+  </div>
+{% endif %}
+
+
 <!-- Modal Preview -->
 <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
