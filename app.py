@@ -128,7 +128,7 @@ def history():
     return render_template("history.html", cards=cards, form_filter=form_filter, search=search)
 
 # --- Edit Card List ---
-@app.route("/edit_card")
+@app.route("/edit_card_list")
 def edit_card_list():
     if not session.get("user_id"):
         return redirect(url_for("login"))
@@ -206,8 +206,7 @@ def player_profile(discord_id):
 
     player, cards, all_cards = loop.run_until_complete(fetch_player_and_cards())
     if not player:
-        flash(f"❌ No player found with Discord ID {discord_id}")
-        return redirect(url_for("admin_dashboard"))
+        return render_template("player_not_found.html", discord_id=discord_id)
 
     return render_template("player_profile.html", player=player, cards=cards, all_cards=all_cards)
 
@@ -259,4 +258,3 @@ def search_player():
 # --- Run Server ---
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
-
