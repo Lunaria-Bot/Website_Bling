@@ -37,7 +37,7 @@
 
   <!-- Main Content -->
   <div class="col-md-9">
-    <h1 class="page-title text-white" data-aos="fade-down">Edit Cards</h1>
+    <h1 class="page-title text-center mb-4" data-aos="fade-down">Edit Cards</h1>
 
     <!-- Filters -->
     <div class="row mb-4" data-aos="fade-up">
@@ -54,27 +54,37 @@
       </div>
     </div>
 
-    <!-- Card List -->
-    {% for c in cards %}
-      <div class="glass-card mb-3 glow-hover card-entry" data-form="{{ c.form }}" data-name="{{ c.character_name|lower }}" data-id="{{ c.id }}" data-aos="fade-up">
-        <strong class="text-white">#{{ c.id }}</strong> — <span class="text-white">{{ c.character_name }}</span>
-        <small class="text-muted">({{ c.form|capitalize }})</small><br>
-        <small class="text-muted">Added: {{ c.created_at }}</small>
-        <div class="float-end">
-          <a href="{{ url_for('edit_card', card_id=c.id) }}" class="btn btn-sm btn-outline-light me-2">
-            <i class="fas fa-edit"></i> Edit
-          </a>
-          <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ c.id }}" data-name="{{ c.character_name }}">
-            <i class="fas fa-trash"></i>
-          </button>
+    <!-- Card Grid -->
+    <div class="row g-4">
+      {% for c in cards %}
+        <div class="col-md-6 col-lg-4 card-entry" data-form="{{ c.form }}" data-name="{{ c.character_name|lower }}" data-id="{{ c.id }}" data-aos="fade-up">
+          <div class="glass-card p-3 glow-hover h-100 d-flex flex-column justify-content-between">
+            <div class="text-center mb-3">
+              <img src="{{ c.image_url }}" alt="Card Image" class="img-fluid rounded" style="max-height: 180px;">
+            </div>
+            <div>
+              <h5 class="text-info">{{ c.character_name }}</h5>
+              <p class="text-muted mb-1">Form: {{ c.form|capitalize }}</p>
+              <p class="text-muted mb-1">ID: #{{ c.id }}</p>
+              <p class="text-muted mb-2">Added: {{ c.created_at }}</p>
+              <div class="d-flex justify-content-end gap-2">
+                <a href="{{ url_for('edit_card', card_id=c.id) }}" class="btn btn-sm btn-outline-light">
+                  <i class="fas fa-edit"></i> Edit
+                </a>
+                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ c.id }}" data-name="{{ c.character_name }}">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    {% else %}
-      <div class="glass-card text-center text-muted py-4" data-aos="fade-up">
-        <i class="fas fa-info-circle fa-2x mb-2"></i>
-        <p>No cards found.</p>
-      </div>
-    {% endfor %}
+      {% else %}
+        <div class="glass-card text-center text-muted py-4 mx-auto" style="max-width: 500px;" data-aos="fade-up">
+          <i class="fas fa-info-circle fa-2x mb-2"></i>
+          <p>No cards found.</p>
+        </div>
+      {% endfor %}
+    </div>
   </div>
 </div>
 
