@@ -199,16 +199,20 @@ def player_profile(discord_id):
 
     async def fetch_player_and_cards():
         async with db_pool.acquire() as conn:
-            player = await conn.fetchrow("SELECT id, discord_id, name, bloodcoins FROM players WHERE discord_id=$1", discord_id)
+            player = await conn.fetchrow("SELECT * FROM players WHERE discord_id=$1", discord_id)
             if not player:
                 return None, [], []
             cards = await conn.fetch("SELECT * FROM cards WHERE owner_id=$1 ORDER BY created_at DESC", player["id"])
             all_cards = await conn.fetch("SELECT id, character_name FROM cards WHERE owner_id IS NULL ORDER BY id DESC")
-            return player, cards, all_cards
+            return dict(player), cards, all_cards
 
     player, cards, all_cards = loop.run_until_complete(fetch_player_and_cards())
     if not player:
         return render_template("player_not_found.html", discord_id=discord_id)
+
+    player["xp_max"] = 172
+    player["created_at"] = player["created_at"].strftime("%d %b %Y") if player["created_at"] else "Unknown"
+    player["updated_at"] = player["updated_at"].strftime("%d %b %Y") if player["updated_at"] else "Unknown"
 
     return render_template("player_profile.html", player=player, cards=cards, all_cards=all_cards)
 
@@ -252,7 +256,7 @@ def search_player():
         return redirect(url_for("login"))
 
     if request.method == "POST":
-        discord_id = request.form.get("discord_id")
+        discord_id = request.form.get("discord_id").strip()
         return redirect(url_for("player_profile", discord_id=discord_id))
 
     return render_template("search_player.html")
