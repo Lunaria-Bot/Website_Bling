@@ -29,7 +29,7 @@
         <div class="progress bg-secondary mb-2" style="height: 8px;">
           <div class="progress-bar bg-warning" role="progressbar" style="width: {{ (player.xp / (player.xp_max or 172) * 100) | round(0) }}%;"></div>
         </div>
-        <p><strong class="text-light">Achievements:</strong> {{ player.achievements or ('Identification card of ' ~ player.username) }}</p>
+        <p><strong class="text-light">Achievements:</strong> {{ player.achievements or 'None' }}</p>
         <p><strong class="text-light">Created:</strong> {{ player.created_at }}</p>
         <p><strong class="text-light">Last Update:</strong> {{ player.updated_at }}</p>
       </div>
