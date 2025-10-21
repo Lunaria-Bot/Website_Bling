@@ -1,109 +1,24 @@
-/* Fonts & Base */
+$primary: #7f00ff;
+$secondary: #00c3ff;
+$bg-dark: #0d0d1a;
+$glass: rgba(255, 255, 255, 0.05);
+
 body {
+  background: linear-gradient(135deg, $bg-dark, #1a1a2e);
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #0f0f1c, #1a1a2e);
-  background-size: cover;
-  background-attachment: fixed;
-  color: #f0f0f0;
-  margin: 0;
-  overflow-x: hidden;
-}
-
-/* Sidebar */
-.sidebar {
-  width: 240px;
-  background-color: rgba(28, 30, 34, 0.95);
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  padding-top: 70px;
-  border-right: 1px solid #2c2f33;
-  z-index: 1000;
-}
-.sidebar a {
-  display: block;
-  padding: 1rem 1.5rem;
-  color: #ccc;
-  text-decoration: none;
-  transition: background 0.2s, color 0.2s;
-}
-.sidebar a:hover {
-  background-color: #2a2d32;
   color: #fff;
 }
 
-/* Navbar */
-.navbar {
-  height: 70px;
-  background-color: rgba(28, 30, 34, 0.95);
-  border-bottom: 1px solid #2c2f33;
-  padding: 0 1rem;
-  margin-left: 240px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 240px;
-  z-index: 900;
-}
-.navbar-brand {
-  font-weight: 600;
-  color: #e0e0ff;
-  text-shadow: 0 0 6px #6b6bff;
-}
-
-/* Main */
-.main {
-  margin-left: 240px;
-  padding: 2rem;
-  padding-top: 90px;
-}
-
-/* Cards */
 .glass-card {
-  background-color: rgba(31, 33, 38, 0.9);
-  border: 1px solid #2c2f33;
+  background: $glass;
+  backdrop-filter: blur(12px);
   border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 0 20px rgba(127,0,255,0.2);
+  transition: all 0.3s ease;
 }
 
-/* Buttons */
-.btn-primary {
-  background: linear-gradient(135deg, #6b6bff, #8f8fff);
-  border: none;
-  color: #fff;
-  box-shadow: 0 0 10px rgba(107,107,255,0.3);
-}
-.btn-primary:hover {
-  background: linear-gradient(135deg, #4c4ccf, #6b6bff);
-  box-shadow: 0 0 16px rgba(107,107,255,0.5);
-}
-.btn-outline-light {
-  border-color: #aaa;
-  color: #eee;
-}
-
-/* Forms */
-.form-control, .form-select {
-  background-color: #1f1f2f;
-  border: 1px solid #3c4046;
-  color: #f5f5f5;
-}
-.form-control:focus, .form-select:focus {
-  border-color: #6b6bff;
-  box-shadow: 0 0 0 0.2rem rgba(107,107,255,.25);
-}
-
-/* Page Title */
-.page-title {
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin-bottom: 2rem;
-  text-align: center;
-  color: #e0e0ff;
-  text-shadow: 0 0 8px rgba(107,107,255,0.3);
+.glass-card:hover {
+  box-shadow: 0 0 30px rgba(0,195,255,0.4);
+  transform: scale(1.02);
 }
