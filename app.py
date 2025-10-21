@@ -345,12 +345,12 @@ def manage():
     async def fetch_all_admins():
         async with db_pool.acquire() as conn:
             return await conn.fetch(
-                "SELECT id, username, discord_id, avatar_url, role, active FROM admins ORDER BY role DESC"
+                "SELECT id, username, role FROM admins ORDER BY role DESC"
             )
 
     admins = loop.run_until_complete(fetch_all_admins())
     return render_template("manage.html", users=admins)
-    
+
 # --- Run Server ---
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
