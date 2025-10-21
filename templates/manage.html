@@ -11,39 +11,17 @@
         <div class="col-md-6 col-lg-4" data-aos="fade-up">
           <div class="glass-card p-3 h-100 d-flex flex-column justify-content-between glow-hover">
             <div class="text-center mb-3">
-              <img src="{{ u.avatar_url or '/static/default_avatar.png' }}" alt="Avatar" class="img-fluid rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+              <img src="/static/default_avatar.png" alt="Avatar" class="img-fluid rounded-circle" style="width: 100px; height: 100px;">
             </div>
             <div>
-              <h5 class="text-info mb-1">{{ u.username or 'Unknown' }}</h5>
-              <p class="text-muted mb-1">Discord ID: <code>{{ u.discord_id }}</code></p>
+              <h5 class="text-info mb-1">{{ u.username }}</h5>
+              <p class="text-muted mb-1">ID: <code>{{ u.id }}</code></p>
               <p class="text-muted mb-1">Role: <span class="badge bg-secondary">{{ u.role|capitalize }}</span></p>
-              <p class="text-muted">Status: 
-                {% if u.active %}
-                  <span class="text-success">Active</span>
-                {% else %}
-                  <span class="text-danger">Suspended</span>
-                {% endif %}
-              </p>
             </div>
-            <div class="d-flex justify-content-end gap-2 mt-3">
+            <div class="text-end mt-3">
               <a href="{{ url_for('edit_user', user_id=u.id) }}" class="btn btn-sm btn-outline-light">
                 <i class="fas fa-user-cog"></i> Edit
               </a>
-              {% if u.active %}
-                <form method="POST" action="{{ url_for('suspend_user') }}">
-                  <input type="hidden" name="user_id" value="{{ u.id }}">
-                  <button type="submit" class="btn btn-sm btn-outline-danger">
-                    <i class="fas fa-user-slash"></i> Suspend
-                  </button>
-                </form>
-              {% else %}
-                <form method="POST" action="{{ url_for('activate_user') }}">
-                  <input type="hidden" name="user_id" value="{{ u.id }}">
-                  <button type="submit" class="btn btn-sm btn-outline-success">
-                    <i class="fas fa-user-check"></i> Activate
-                  </button>
-                </form>
-              {% endif %}
             </div>
           </div>
         </div>
