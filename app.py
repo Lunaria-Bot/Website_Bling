@@ -366,7 +366,24 @@ def edit_user(user_id):
         return redirect(url_for("manage"))
 
     return render_template("edit_user.html", user=user)
-  
+ # --- Update User ---    
+  @app.route("/update_user", methods=["POST"])
+def update_user():
+    user_id = request.form["user_id"]
+    username = request.form["username"]
+    role = request.form["role"]
+
+    async def update_admin():
+        async with db_pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE admins SET username=$1, role=$2 WHERE id=$3",
+                username, role, int(user_id)
+            )
+
+    loop.run_until_complete(update_admin())
+    flash("✅ User updated successfully")
+    return redirect(url_for("manage"))
+
 # --- Run Server ---
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
