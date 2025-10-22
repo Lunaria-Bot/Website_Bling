@@ -249,6 +249,8 @@ async def process_card():
     async with db_pool.acquire() as conn:
         if action == "approved":
             card = await conn.fetchrow("SELECT * FROM pending_cards WHERE id = $1", card_id)
-            await conn.execute("""
-                INSERT INTO cards (code, character_name, form, image_url, description, event_name, created_at, approved)
-                VALUES ($1, $2, $3, $4, $5, $6, NOW
+           await conn.execute("""
+    INSERT INTO cards (code, character_name, form, image_url, description, event_name, created_at, approved)
+    VALUES ($1, $2, $3, $4, $5, $6, NOW(), TRUE)
+""", card["id"], card["character_name"], card["form"], card["image_url"], card["description"], card["event_name"])
+
