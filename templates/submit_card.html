@@ -7,20 +7,20 @@
 
   <div class="row justify-content-center">
     <div class="col-lg-8" data-aos="fade-up">
-      <form method="POST" action="{{ url_for('submit_card') }}" enctype="multipart/form-data" class="glass-card p-4">
+      <form method="POST" action="{{ url_for('submit_card') }}" class="glass-card p-4">
         <div class="mb-3">
-          <label class="form-label text-light">Card Title</label>
-          <input type="text" name="title" class="form-control bg-dark text-light border-secondary" required>
+          <label for="title" class="form-label text-light">Card Title</label>
+          <input type="text" id="title" name="title" class="form-control bg-dark text-light border-secondary" required>
         </div>
 
         <div class="mb-3">
-          <label class="form-label text-light">Description</label>
-          <textarea name="description" rows="3" class="form-control bg-dark text-light border-secondary" required></textarea>
+          <label for="description" class="form-label text-light">Description</label>
+          <textarea id="description" name="description" rows="3" class="form-control bg-dark text-light border-secondary" required></textarea>
         </div>
 
         <div class="mb-3">
-          <label class="form-label text-light">Form Type</label>
-          <select name="form_type" class="form-select bg-dark text-light border-secondary" required>
+          <label for="form_type" class="form-label text-light">Form Type</label>
+          <select id="form_type" name="form_type" class="form-select bg-dark text-light border-secondary" required>
             <option value="base">Base</option>
             <option value="awakened">Awakened</option>
             <option value="event">Event</option>
@@ -28,16 +28,18 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label text-light">Image Upload</label>
-          <input type="file" name="image" accept="image/*" class="form-control bg-dark text-light border-secondary" onchange="previewImage(event)" required>
+          <label for="image_url" class="form-label text-light">Image Link</label>
+          <input type="url" id="image_url" name="image_url" class="form-control bg-dark text-light border-secondary" placeholder="https://example.com/image.png" oninput="updatePreview()" required>
         </div>
 
         <div class="text-center mb-3">
-          <img id="imagePreview" src="/static/default_preview.png" alt="Preview" class="img-fluid rounded" style="max-height: 240px;">
+          <img id="imagePreview" src="/static/default_preview.png" alt="Preview" class="img-fluid rounded shadow" style="max-height: 240px;">
         </div>
 
         <div class="text-end">
-          <button type="submit" class="btn btn-success px-4">Submit</button>
+          <button type="submit" class="btn btn-success px-4">
+            <i class="fas fa-paper-plane me-1"></i> Submit
+          </button>
         </div>
       </form>
     </div>
@@ -47,13 +49,10 @@
 
 {% block scripts %}
 <script>
-  function previewImage(event) {
-    const reader = new FileReader();
-    reader.onload = function () {
-      const output = document.getElementById('imagePreview');
-      output.src = reader.result;
-    };
-    reader.readAsDataURL(event.target.files[0]);
+  function updatePreview() {
+    const url = document.getElementById('image_url').value;
+    const preview = document.getElementById('imagePreview');
+    preview.src = url || '/static/default_preview.png';
   }
 </script>
 {% endblock %}
