@@ -36,11 +36,18 @@ async def login():
                 username
             )
 
+        if admin:
+            print("Fetched admin:", dict(admin))
+        else:
+            print("No admin found for username:", username)
+
         if admin and check_password_hash(admin["password_hash"], password):
             session["user_id"] = admin["id"]
             session["username"] = admin["username"]
             session["role"] = admin["role"]
+            print("Session set:", dict(session))
             flash("✅ Logged in successfully!")
+
             if admin["role"] == "admin":
                 return redirect(url_for("admin_dashboard"))
             elif admin["role"] == "card_maker":
@@ -81,6 +88,52 @@ async def logout():
     session.clear()
     flash("Logged out.")
     return redirect(url_for("login"))
+# --- Admin Dashboard ---
+ @app.route("/admin", methods=["GET", "POST"])
+async def admin_dashboard():
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        form = await request.form
+        card_id = int(form["card_id"])
+        action = form["action"]
+
+        async with db_pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE card_queue SET status=$1 WHERE id=$2",
+                action, card_id
+            )
+
+        flash(f"✅ Card #{card_id} marked as {action}.")
+        return redirect(url_for("admin_dashboard"))
+
+    async with db_pool.acquire() as conn:
+        total = await conn.fetchval("SELECT COUNT(*) FROM cards")
+        base = await conn.fetchval("SELECT COUNT(*) FROM cards WHERE form='base'")
+        awakened = await conn.fetchval("SELECT COUNT(*) FROM cards WHERE form='awakened'")
+        event = await conn.fetchval("SELECT COUNT(*) FROM cards WHERE form='event'")
+        recent = await conn.fetch("""
+            SELECT id, character_name, form, image_url, description, created_at
+            FROM cards ORDER BY created_at DESC LIMIT 5
+        """)
+        pending = await conn.fetch("""
+            SELECT id, title, description, image_url, submitted_by, form_type, created_at
+            FROM card_queue WHERE status = 'pending'
+            ORDER BY created_at DESC LIMIT 5
+        """)
+
+    stats = {
+        "total": total,
+        "base": base,
+        "awakened": awakened,
+        "event": event,
+        "recent": recent,
+        "pending": pending
+    }
+
+    return await render_template("admin_dashboard.html", stats=stats)
+   
 
 # --- Edit Card List ---
 @app.route("/edit_card_list")
