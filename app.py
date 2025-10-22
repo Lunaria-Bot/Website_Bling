@@ -133,8 +133,36 @@ async def admin_dashboard():
     }
 
     return await render_template("admin_dashboard.html", stats=stats)
-   
+ # --- HISTORY ---   
+ @app.route("/history")
+async def history():
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
 
+    form_filter = request.args.get("form")
+    search = request.args.get("search")
+
+    async with db_pool.acquire() as conn:
+        query = "SELECT id, character_name, form, image_url, description, created_at FROM cards"
+        conditions = []
+        params = []
+
+        if form_filter and form_filter != "all":
+            conditions.append(f"form = ${len(params)+1}")
+            params.append(form_filter)
+
+        if search:
+            conditions.append(f"character_name ILIKE ${len(params)+1}")
+            params.append(f"%{search}%")
+
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+
+        query += " ORDER BY created_at DESC LIMIT 50"
+        cards = await conn.fetch(query, *params)
+
+    return await render_template("history.html", cards=cards, form_filter=form_filter, search=search)
+  
 # --- Edit Card List ---
 @app.route("/edit_card_list")
 async def edit_card_list():
