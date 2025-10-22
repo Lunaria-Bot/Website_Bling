@@ -239,35 +239,17 @@ async def delete_card():
         return redirect(url_for("login"))
 
     form = await request.form
-    card_id = int(form.get("card_id"))
+    try:
+        card_id = int(form.get("card_id"))
+    except (TypeError, ValueError):
+        await flash("❌ Invalid card ID.")
+        return redirect(url_for("admin_dashboard"))
+
     async with db_pool.acquire() as conn:
         await conn.execute("DELETE FROM cards WHERE id=$1", card_id)
 
-    flash("🗑️ Card deleted.")
+    await flash("🗑️ Card deleted.")
     return redirect(url_for("edit_card_list"))
-
-# --- Player Profile ---
-@app.route("/player/<discord_id>")
-async def player_profile(discord_id):
-    if not session.get("user_id"):
-        return redirect(url_for("login"))
-
-    discord_id = str(discord_id).strip()
-
-    async with db_pool.acquire() as conn:
-        player = await conn.fetchrow("SELECT * FROM players WHERE discord_id=$1", discord_id)
-        if not player:
-            return await render_template("player_not_found.html", discord_id=discord_id)
-
-        cards = await conn.fetch("SELECT * FROM cards WHERE owner_id=$1 ORDER BY created_at DESC", player["id"])
-        all_cards = await conn.fetch("SELECT id, character_name FROM cards WHERE owner_id IS NULL ORDER BY id DESC")
-
-    player = dict(player)
-    player["xp_max"] = 172
-    player["created_at"] = player["created_at"].strftime("%d %b %Y") if player["created_at"] else "Unknown"
-    player["updated_at"] = player["updated_at"].strftime("%d %b %Y") if player["updated_at"] else "Unknown"
-
-    return await render_template("player_profile.html", player=player, cards=cards, all_cards=all_cards)
 
 # --- Assign Card to Player ---
 @app.route("/add_card_to_player", methods=["POST"])
