@@ -234,37 +234,31 @@ def edit_card_list():
     cards = loop.run_until_complete(fetch_all_cards())
     return render_template("edit_card_list.html", cards=cards)
 # --- Edit Specific Card ---
-@app.route("/edit/<int:card_id>", methods=["GET", "POST"])
-def edit_card(card_id):
-    if session.get("role") != "admin":
-        return redirect(url_for("login"))
+@app.route("/edit_card/<int:card_id>", methods=["GET", "POST"])
+async def edit_card(card_id):
+    async with db_transaction(bot.db) as conn:
+        card = await conn.fetchrow("SELECT * FROM cards WHERE id = $1", card_id)
+        if not card:
+            abort(404)
 
-    async def fetch_card():
-        async with db_pool.acquire() as conn:
-            return await conn.fetchrow("SELECT id, character_name, form, image_url, description FROM cards WHERE id=$1", card_id)
+        if request.method == "POST":
+            name = request.form["character_name"]
+            form = request.form["form"]
+            image_url = request.form["image_url"]
+            description = request.form["description"]
 
-    card = loop.run_until_complete(fetch_card())
-    if not card:
-        flash(f"❌ Card with ID {card_id} not found")
-        return redirect(url_for("edit_card_list"))
+            await conn.execute("""
+                UPDATE cards
+                SET character_name = $1,
+                    form = $2,
+                    image_url = $3,
+                    description = $4
+                WHERE id = $5
+            """, name, form, image_url, description, card_id)
 
-    if request.method == "POST":
-        character_name = request.form["character_name"]
-        form = request.form["form"]
-        image_url = request.form["image_url"]
-        description = request.form["description"]
+            return redirect(url_for("edit_card_list"))
 
-        async def update_card():
-            async with db_pool.acquire() as conn:
-                await conn.execute("""
-                    UPDATE cards SET character_name=$1, form=$2, image_url=$3, description=$4 WHERE id=$5
-                """, character_name, form, image_url, description, card_id)
-
-        loop.run_until_complete(update_card())
-        flash(f"✅ Card #{card_id} updated successfully!")
-        return redirect(url_for("edit_card_list"))
-
-    return render_template("edit_card.html", card=card)
+    return render_template("edit_card_form.html", card=card)
 
 # --- Delete Card ---
 @app.route("/delete_card", methods=["POST"])
