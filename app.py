@@ -76,168 +76,24 @@ def logout():
     session.clear()
     flash("Logged out.")
     return redirect(url_for("login"))
-
-# --- Admin Dashboard ---
-@app.route("/admin", methods=["GET", "POST"])
-def admin_dashboard():
-    if session.get("role") != "admin":
-        return redirect(url_for("login"))
-
-    if request.method == "POST":
-        card_id = request.form["card_id"]
-        action = request.form["action"]
-
-        async def process_card():
-            async with db_pool.acquire() as conn:
-                if action == "approved":
-                    card = await conn.fetchrow("SELECT * FROM pending_cards WHERE id = $1", card_id)
-                    await conn.execute("""
-                        INSERT INTO cards (code, character_name, form, image_url, description, event_name, created_at, approved)
-                        VALUES ($1, $2, $3, $4, $5, $6, NOW(), TRUE)
-                    """, card["id"], card["character_name"], card["form"], card["image_url"], card["description"], card["event_name"])
-                    await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
-                    await conn.execute("INSERT INTO card_queue (card_id, action) VALUES ($1, 'add')", card["id"])
-                    flash(f"✅ Card {card['character_name']} approved")
-                elif action == "rejected":
-                    await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
-                    flash("❌ Card rejected and removed")
-
-        loop.run_until_complete(process_card())
-        return redirect(url_for("admin_dashboard"))
-
-    async def fetch_stats_and_recent():
-        async with db_pool.acquire() as conn:
-            total = await conn.fetchval("SELECT COUNT(*) FROM cards")
-            base = await conn.fetchval("SELECT COUNT(*) FROM cards WHERE form='base'")
-            awakened = await conn.fetchval("SELECT COUNT(*) FROM cards WHERE form='awakened'")
-            event = await conn.fetchval("SELECT COUNT(*) FROM cards WHERE form='event'")
-            recent = await conn.fetch("""
-                SELECT id, character_name, form, image_url, description, created_at
-                FROM cards ORDER BY created_at DESC LIMIT 5
-            """)
-            pending = await conn.fetch("""
-                SELECT id, character_name, form, image_url, description, event_name, submitted_by, created_at
-                FROM pending_cards ORDER BY created_at DESC LIMIT 5
-            """)
-            return {
-                "total": total,
-                "base": base,
-                "awakened": awakened,
-                "event": event,
-                "recent": recent,
-                "pending": pending
-            }
-
-    stats = loop.run_until_complete(fetch_stats_and_recent())
-    return render_template("admin_dashboard.html", stats=stats)
-
-# --- Card Maker Submission ---
-@app.route("/submit_card", methods=["GET", "POST"])
-def submit_card():
-    if session.get("role") != "card_maker":
-        return redirect(url_for("login"))
-
-    if request.method == "POST":
-        character_name = request.form["title"]
-        form = request.form["form_type"]
-        description = request.form["description"]
-        image_url = request.form["image_url"]
-        submitted_by = session["username"]
-
-        async def insert_pending():
-            async with db_pool.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO pending_cards (character_name, form, image_url, description, event_name, submitted_by)
-                    VALUES ($1, $2, $3, $4, NULL, $5)
-                """, character_name, form, image_url, description, submitted_by)
-
-        loop.run_until_complete(insert_pending())
-        flash("✅ Card submitted and awaiting admin validation.")
-        return redirect(url_for("submit_card"))
-
-    return render_template("submit_card.html")
-
-# --- Add Card (Admin Only) ---
-@app.route("/", methods=["GET", "POST"])
-def add_card():
-    if session.get("role") != "admin":
-        return redirect(url_for("login"))
-
-    if request.method == "POST":
-        base_name = request.form["base_name"]
-        form = request.form["form"]
-        image_url = request.form["image_url"]
-        description = request.form["description"]
-
-        character_name = base_name  # keep it clean
-        card_code = str(uuid.uuid4())
-
-        async def insert_card():
-            async with db_pool.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO cards (code, character_name, form, image_url, description, approved)
-                    VALUES ($1, $2, $3, $4, $5, TRUE)
-                """, card_code, character_name, form, image_url, description)
-
-        try:
-            loop.run_until_complete(insert_card())
-            flash("✅ Card added successfully!")
-        except Exception as e:
-            print("❌ DB insert failed:", e)
-            flash("❌ Failed to add card. Check logs.")
-
-        return redirect(url_for("add_card"))
-
-    return render_template("add_card.html")
-
-# --- History ---
-@app.route("/history")
-def history():
-    if not session.get("user_id"):
-        return redirect(url_for("login"))
-
-    form_filter = request.args.get("form")
-    search = request.args.get("search")
-
-    async def fetch_cards():
-        async with db_pool.acquire() as conn:
-            query = """
-                SELECT id, character_name, form, image_url, description, created_at
-                FROM cards
-                WHERE approved = TRUE
-            """
-            conditions = []
-            params = []
-            if form_filter and form_filter != "all":
-                conditions.append("form = $%d" % (len(params)+1))
-                params.append(form_filter)
-            if search:
-                conditions.append("character_name ILIKE $%d" % (len(params)+1))
-                params.append(f"%{search}%")
-            if conditions:
-                query += " AND " + " AND ".join(conditions)
-            query += " ORDER BY created_at DESC LIMIT 50"
-            return await conn.fetch(query, *params)
-
-    cards = loop.run_until_complete(fetch_cards())
-    return render_template("history.html", cards=cards, form_filter=form_filter, search=search)
-
 # --- Edit Card List ---
 @app.route("/edit_card_list")
-def edit_card_list():
+async def edit_card_list():
     if session.get("role") != "admin":
         return redirect(url_for("login"))
 
-    async def fetch_all_cards():
-        async with db_pool.acquire() as conn:
-            return await conn.fetch("SELECT id, character_name, form, image_url, description, created_at FROM cards ORDER BY id DESC")
+    async with db_pool.acquire() as conn:
+        cards = await conn.fetch("""
+            SELECT id, character_name, form, image_url, description, created_at
+            FROM cards ORDER BY id DESC
+        """)
 
-    cards = loop.run_until_complete(fetch_all_cards())
-    return render_template("edit_card_list.html", cards=cards)
+    return await render_template("edit_card_list.html", cards=cards)
+
 # --- Edit Specific Card ---
 @app.route("/edit_card/<int:card_id>", methods=["GET", "POST"])
 async def edit_card(card_id):
-    async with db_transaction(bot.db) as conn:
+    async with db_pool.acquire() as conn:
         card = await conn.fetchrow("SELECT * FROM cards WHERE id = $1", card_id)
         if not card:
             abort(404)
@@ -259,89 +115,78 @@ async def edit_card(card_id):
 
             return redirect(url_for("edit_card_list"))
 
-    return render_template("edit_card_form.html", card=card)
+    return await render_template("edit_card_form.html", card=card)
 
 # --- Delete Card ---
 @app.route("/delete_card", methods=["POST"])
-def delete_card():
+async def delete_card():
     if session.get("role") != "admin":
         return redirect(url_for("login"))
 
-    card_id = request.form.get("card_id")
+    card_id = int(request.form.get("card_id"))
+    async with db_pool.acquire() as conn:
+        await conn.execute("DELETE FROM cards WHERE id=$1", card_id)
 
-    async def delete():
-        async with db_pool.acquire() as conn:
-            await conn.execute("DELETE FROM cards WHERE id=$1", int(card_id))
-
-    loop.run_until_complete(delete())
     flash("🗑️ Card deleted.")
     return redirect(url_for("edit_card_list"))
 
 # --- Player Profile ---
 @app.route("/player/<discord_id>")
-def player_profile(discord_id):
+async def player_profile(discord_id):
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
     discord_id = str(discord_id).strip()
 
-    async def fetch_player_and_cards():
-        async with db_pool.acquire() as conn:
-            player = await conn.fetchrow("SELECT * FROM players WHERE discord_id=$1", discord_id)
-            if not player:
-                return None, [], []
-            cards = await conn.fetch("SELECT * FROM cards WHERE owner_id=$1 ORDER BY created_at DESC", player["id"])
-            all_cards = await conn.fetch("SELECT id, character_name FROM cards WHERE owner_id IS NULL ORDER BY id DESC")
-            return dict(player), cards, all_cards
+    async with db_pool.acquire() as conn:
+        player = await conn.fetchrow("SELECT * FROM players WHERE discord_id=$1", discord_id)
+        if not player:
+            return await render_template("player_not_found.html", discord_id=discord_id)
 
-    player, cards, all_cards = loop.run_until_complete(fetch_player_and_cards())
-    if not player:
-        return render_template("player_not_found.html", discord_id=discord_id)
+        cards = await conn.fetch("SELECT * FROM cards WHERE owner_id=$1 ORDER BY created_at DESC", player["id"])
+        all_cards = await conn.fetch("SELECT id, character_name FROM cards WHERE owner_id IS NULL ORDER BY id DESC")
 
+    player = dict(player)
     player["xp_max"] = 172
     player["created_at"] = player["created_at"].strftime("%d %b %Y") if player["created_at"] else "Unknown"
     player["updated_at"] = player["updated_at"].strftime("%d %b %Y") if player["updated_at"] else "Unknown"
 
-    return render_template("player_profile.html", player=player, cards=cards, all_cards=all_cards)
+    return await render_template("player_profile.html", player=player, cards=cards, all_cards=all_cards)
 
 # --- Assign Card to Player ---
 @app.route("/add_card_to_player", methods=["POST"])
-def add_card_to_player():
+async def add_card_to_player():
     if session.get("role") != "admin":
         return redirect(url_for("login"))
 
-    player_id = request.form.get("player_id")
-    card_id = request.form.get("card_id")
+    player_id = int(request.form.get("player_id"))
+    card_id = int(request.form.get("card_id"))
     discord_id = request.form.get("discord_id")
 
-    async def assign_card():
-        async with db_pool.acquire() as conn:
-            await conn.execute("UPDATE cards SET owner_id=$1 WHERE id=$2", int(player_id), int(card_id))
+    async with db_pool.acquire() as conn:
+        await conn.execute("UPDATE cards SET owner_id=$1 WHERE id=$2", player_id, card_id)
 
-    loop.run_until_complete(assign_card())
     flash("✅ Card assigned to player!")
     return redirect(url_for("player_profile", discord_id=discord_id))
 
 # --- Remove Card from Player ---
 @app.route("/remove_card_from_player", methods=["POST"])
-def remove_card_from_player():
+async def remove_card_from_player():
     if session.get("role") != "admin":
         return redirect(url_for("login"))
 
-    card_id = request.form.get("card_id")
+    card_id = int(request.form.get("card_id"))
     discord_id = request.form.get("discord_id")
 
-    async def unassign_card():
-        async with db_pool.acquire() as conn:
-            await conn.execute("UPDATE cards SET owner_id=NULL WHERE id=$1", int(card_id))
+    async with db_pool.acquire() as conn:
+        await conn.execute("UPDATE cards SET owner_id=NULL WHERE id=$1", card_id)
 
-    loop.run_until_complete(unassign_card())
     flash("🗑️ Card removed from player.")
     return redirect(url_for("player_profile", discord_id=discord_id))
 
 # --- Search Player ---
 @app.route("/search_player", methods=["GET", "POST"])
-def search_player():
+async def search_player():
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
@@ -349,79 +194,67 @@ def search_player():
         discord_id = request.form.get("discord_id").strip()
         return redirect(url_for("player_profile", discord_id=discord_id))
 
-    return render_template("search_player.html")
+    return await render_template("search_player.html")
 
-# --- Manager ---    
+# --- Manager ---
 @app.route("/manage")
-def manage():
-    async def fetch_all_admins():
-        async with db_pool.acquire() as conn:
-            return await conn.fetch(
-                "SELECT id, username, role FROM admins ORDER BY role DESC"
-            )
+async def manage():
+    async with db_pool.acquire() as conn:
+        admins = await conn.fetch("SELECT id, username, role FROM admins ORDER BY role DESC")
 
-    admins = loop.run_until_complete(fetch_all_admins())
-    return render_template("manage.html", users=admins)
+    return await render_template("manage.html", users=admins)
 
-# --- Edit user --- 
+# --- Edit User ---
 @app.route("/edit_user/<int:user_id>")
-def edit_user(user_id):
-    async def fetch_user():
-        async with db_pool.acquire() as conn:
-            return await conn.fetchrow(
-                "SELECT id, username, role FROM admins WHERE id = $1", user_id
-            )
+async def edit_user(user_id):
+    async with db_pool.acquire() as conn:
+        user = await conn.fetchrow("SELECT id, username, role FROM admins WHERE id = $1", user_id)
 
-    user = loop.run_until_complete(fetch_user())
     if not user:
         flash("❌ User not found")
         return redirect(url_for("manage"))
 
-    return render_template("edit_user.html", user=user)
+    return await render_template("edit_user.html", user=user)
 
-# --- Update User ---    
+# --- Update User ---
 @app.route("/update_user", methods=["POST"])
-def update_user():
-    user_id = request.form["user_id"]
+async def update_user():
+    user_id = int(request.form["user_id"])
     username = request.form["username"]
     role = request.form["role"]
 
-    async def update_admin():
-        async with db_pool.acquire() as conn:
-            await conn.execute(
-                "UPDATE admins SET username=$1, role=$2 WHERE id=$3",
-                username, role, int(user_id)
-            )
+    async with db_pool.acquire() as conn:
+        await conn.execute(
+            "UPDATE admins SET username=$1, role=$2 WHERE id=$3",
+            username, role, user_id
+        )
 
-    loop.run_until_complete(update_admin())
     flash("✅ User updated successfully")
     return redirect(url_for("manage"))
 
-# --- Approve (from pending_cards to cards) --- 
+# --- Approve Card ---
 @app.route("/process_card", methods=["POST"])
-def process_card():
+async def process_card():
     card_id = request.form["card_id"]
     action = request.form["action"]
 
-    async def update_card():
-        async with db_pool.acquire() as conn:
-            if action == "approved":
-                card = await conn.fetchrow("SELECT * FROM pending_cards WHERE id = $1", card_id)
-                await conn.execute("""
-                    INSERT INTO cards (code, character_name, form, image_url, description, event_name, created_at, approved)
-                    VALUES ($1, $2, $3, $4, $5, $6, NOW(), TRUE)
-                """, card["id"], card["character_name"], card["form"], card["image_url"], card["description"], card["event_name"])
-                await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
-                await conn.execute("INSERT INTO card_queue (card_id, action) VALUES ($1, 'add')", card["id"])
-                flash(f"✅ Card {card['character_name']} approved")
-            elif action == "rejected":
-                await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
-                flash(f"❌ Card {card_id} rejected and removed")
+    async with db_pool.acquire() as conn:
+        if action == "approved":
+            card = await conn.fetchrow("SELECT * FROM pending_cards WHERE id = $1", card_id)
+            await conn.execute("""
+                INSERT INTO cards (code, character_name, form, image_url, description, event_name, created_at, approved)
+                VALUES ($1, $2, $3, $4, $5, $6, NOW(), TRUE)
+            """, card["id"], card["character_name"], card["form"], card["image_url"], card["description"], card["event_name"])
+            await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
+            await conn.execute("INSERT INTO card_queue (card_id, action) VALUES ($1, 'add')", card["id"])
+            flash(f"✅ Card {card['character_name']} approved")
+        elif action == "rejected":
+            await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
+            flash(f"❌ Card {card_id} rejected and removed")
 
-    loop.run_until_complete(update_card())
     return redirect(url_for("admin_dashboard"))
 
 # --- Run Server ---
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
-
+    import uvicorn
+    uvicorn.run("app:app", host="0.0.0.0", port=int(os.getenv("PORT", 5000)), reload=True)
