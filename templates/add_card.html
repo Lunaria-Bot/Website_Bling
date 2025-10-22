@@ -3,7 +3,6 @@
 
 {% block content %}
 <div class="row">
-  <!-- Sidebar -->
   <div class="col-md-3" data-aos="fade-right">
     <div class="glass-card p-3">
       <h5 class="text-light mb-4">Navigation</h5>
@@ -30,7 +29,6 @@
     </div>
   </div>
 
-  <!-- Form Content -->
   <div class="col-md-9">
     <h1 class="page-title" data-aos="fade-down">Add a New Card</h1>
 
@@ -42,27 +40,33 @@
         </div>
 
         <div class="mb-3">
+          <label for="form" class="form-label text-light">Form Type</label>
+          <select class="form-select bg-dark text-light border-secondary" id="form" name="form" required>
+            <option value="base">Base</option>
+            <option value="awakened">Awakened</option>
+            <option value="event">Event</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
           <label for="description" class="form-label text-light">Description</label>
           <textarea class="form-control bg-dark text-light border-secondary" id="description" name="description" rows="4"></textarea>
         </div>
 
         <div class="mb-3">
-          <label class="form-label text-light">Image Links (by Form)</label>
-          <input type="url" class="form-control bg-dark text-light border-secondary mb-2" id="image_base" name="image_base" placeholder="Base Form Image URL" required>
-          <input type="url" class="form-control bg-dark text-light border-secondary mb-2" id="image_awakened" name="image_awakened" placeholder="Awakened Form Image URL" required>
-          <input type="url" class="form-control bg-dark text-light border-secondary" id="image_event" name="image_event" placeholder="Event Form Image URL" required>
+          <label for="image_url" class="form-label text-light">Image Link</label>
+          <input type="url" class="form-control bg-dark text-light border-secondary" id="image_url" name="image_url" placeholder="https://..." required>
         </div>
 
         <div class="text-end">
-          <button type="submit" class="btn btn-primary px-4">Add All Forms</button>
-          <button type="button" class="btn btn-outline-info ms-2" onclick="previewAll()">Preview All Forms</button>
+          <button type="submit" class="btn btn-primary px-4">Add Card</button>
         </div>
       </div>
     </form>
 
-    <!-- Preview Carousel -->
-    <div class="card-preview mt-5 mx-auto d-none" id="previewContainer" data-aos="fade-up" data-aos-delay="500">
-      <img id="previewImage" src="" alt="Preview" class="w-100">
+    <!-- Live Preview -->
+    <div class="card-preview mt-5 mx-auto" data-aos="fade-up" data-aos-delay="500">
+      <img id="previewImage" src="" alt="Preview" class="d-none">
       <div class="info">
         <h5 id="previewName" class="text-info">—</h5>
         <p><strong>Form:</strong> <span id="previewForm" class="text-warning">—</span></p>
@@ -108,47 +112,33 @@
 </style>
 
 <script>
-  const baseInput = document.getElementById('base_name');
+  const nameInput = document.getElementById('base_name');
+  const formSelect = document.getElementById('form');
   const descInput = document.getElementById('description');
-  const imageInputs = {
-    base: document.getElementById('image_base'),
-    awakened: document.getElementById('image_awakened'),
-    event: document.getElementById('image_event')
-  };
+  const linkInput = document.getElementById('image_url');
 
-  const previewContainer = document.getElementById('previewContainer');
-  const previewImage = document.getElementById('previewImage');
   const previewName = document.getElementById('previewName');
   const previewForm = document.getElementById('previewForm');
   const previewDesc = document.getElementById('previewDesc');
+  const previewImage = document.getElementById('previewImage');
 
-  let currentFormIndex = 0;
-  const formOrder = ['base', 'awakened', 'event'];
+  function updatePreview() {
+    previewName.textContent = nameInput.value || '—';
+    previewForm.textContent = formSelect.value || '—';
+    previewDesc.textContent = descInput.value || '—';
 
-  function previewAll() {
-    previewContainer.classList.remove('d-none');
-    currentFormIndex = 0;
-    cyclePreview();
-  }
-
-  function cyclePreview() {
-    const form = formOrder[currentFormIndex];
-    const name = baseInput.value || '—';
-    const desc = descInput.value || '—';
-    const url = imageInputs[form].value;
-
-    previewName.textContent = `${name} (${form})`;
-    previewForm.textContent = form;
-    previewDesc.textContent = desc;
-
+    const url = linkInput.value;
     if (url && url.startsWith('http')) {
       previewImage.src = url;
+      previewImage.classList.remove('d-none');
     } else {
-      previewImage.src = '';
+      previewImage.classList.add('d-none');
     }
-
-    currentFormIndex = (currentFormIndex + 1) % formOrder.length;
-    setTimeout(cyclePreview, 3000); // change every 3 seconds
   }
+
+  nameInput.addEventListener('input', updatePreview);
+  formSelect.addEventListener('change', updatePreview);
+  descInput.addEventListener('input', updatePreview);
+  linkInput.addEventListener('input', updatePreview);
 </script>
 {% endblock %}
