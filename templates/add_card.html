@@ -36,40 +36,33 @@
 
     <form method="POST" action="{{ url_for('add_card') }}">
       <div class="glass-card p-4" data-aos="fade-up">
-        <div class="mb-3" data-aos="fade-up" data-aos-delay="100">
-          <label for="character_name" class="form-label text-light">Character Name</label>
-          <input type="text" class="form-control bg-dark text-light border-secondary" id="character_name" name="character_name" required>
+        <div class="mb-3">
+          <label for="base_name" class="form-label text-light">Character Name</label>
+          <input type="text" class="form-control bg-dark text-light border-secondary" id="base_name" name="base_name" required>
         </div>
 
-        <div class="mb-3" data-aos="fade-up" data-aos-delay="200">
-          <label for="form" class="form-label text-light">Form Type</label>
-          <select class="form-select bg-dark text-light border-secondary" id="form" name="form" required>
-            <option value="base">Base</option>
-            <option value="awakened">Awakened</option>
-            <option value="event">Event</option>
-          </select>
-        </div>
-
-        <div class="mb-3" data-aos="fade-up" data-aos-delay="300">
+        <div class="mb-3">
           <label for="description" class="form-label text-light">Description</label>
           <textarea class="form-control bg-dark text-light border-secondary" id="description" name="description" rows="4"></textarea>
         </div>
 
-        <div class="mb-3" data-aos="fade-up" data-aos-delay="350">
-          <label for="image_link" class="form-label text-light">Image Link</label>
-          <input type="url" class="form-control bg-dark text-light border-secondary" id="image_link" name="image_link" placeholder="https://..." required>
-          <div id="linkFeedback" class="form-text text-danger mt-1 d-none">⚠️ Invalid image link</div>
+        <div class="mb-3">
+          <label class="form-label text-light">Image Links (by Form)</label>
+          <input type="url" class="form-control bg-dark text-light border-secondary mb-2" id="image_base" name="image_base" placeholder="Base Form Image URL" required>
+          <input type="url" class="form-control bg-dark text-light border-secondary mb-2" id="image_awakened" name="image_awakened" placeholder="Awakened Form Image URL" required>
+          <input type="url" class="form-control bg-dark text-light border-secondary" id="image_event" name="image_event" placeholder="Event Form Image URL" required>
         </div>
 
-        <div class="text-end" data-aos="fade-up" data-aos-delay="400">
-          <button type="submit" class="btn btn-primary px-4">Add Card</button>
+        <div class="text-end">
+          <button type="submit" class="btn btn-primary px-4">Add All Forms</button>
+          <button type="button" class="btn btn-outline-info ms-2" onclick="previewAll()">Preview All Forms</button>
         </div>
       </div>
     </form>
 
-    <!-- Live Preview -->
-    <div class="card-preview mt-5 mx-auto" data-aos="fade-up" data-aos-delay="500">
-      <img id="previewImage" src="" alt="Preview" class="d-none">
+    <!-- Preview Carousel -->
+    <div class="card-preview mt-5 mx-auto d-none" id="previewContainer" data-aos="fade-up" data-aos-delay="500">
+      <img id="previewImage" src="" alt="Preview" class="w-100">
       <div class="info">
         <h5 id="previewName" class="text-info">—</h5>
         <p><strong>Form:</strong> <span id="previewForm" class="text-warning">—</span></p>
@@ -115,45 +108,47 @@
 </style>
 
 <script>
-  const nameInput = document.getElementById('character_name');
-  const formSelect = document.getElementById('form');
+  const baseInput = document.getElementById('base_name');
   const descInput = document.getElementById('description');
-  const linkInput = document.getElementById('image_link');
+  const imageInputs = {
+    base: document.getElementById('image_base'),
+    awakened: document.getElementById('image_awakened'),
+    event: document.getElementById('image_event')
+  };
 
+  const previewContainer = document.getElementById('previewContainer');
+  const previewImage = document.getElementById('previewImage');
   const previewName = document.getElementById('previewName');
   const previewForm = document.getElementById('previewForm');
   const previewDesc = document.getElementById('previewDesc');
-  const previewImage = document.getElementById('previewImage');
-  const linkFeedback = document.getElementById('linkFeedback');
 
-  nameInput.addEventListener('input', () => {
-    previewName.textContent = nameInput.value || '—';
-  });
+  let currentFormIndex = 0;
+  const formOrder = ['base', 'awakened', 'event'];
 
-  formSelect.addEventListener('change', () => {
-    previewForm.textContent = formSelect.value || '—';
-  });
+  function previewAll() {
+    previewContainer.classList.remove('d-none');
+    currentFormIndex = 0;
+    cyclePreview();
+  }
 
-  descInput.addEventListener('input', () => {
-    previewDesc.textContent = descInput.value || '—';
-  });
+  function cyclePreview() {
+    const form = formOrder[currentFormIndex];
+    const name = baseInput.value || '—';
+    const desc = descInput.value || '—';
+    const url = imageInputs[form].value;
 
-  linkInput.addEventListener('input', () => {
-    const url = linkInput.value;
+    previewName.textContent = `${name} (${form})`;
+    previewForm.textContent = form;
+    previewDesc.textContent = desc;
+
     if (url && url.startsWith('http')) {
       previewImage.src = url;
-      previewImage.classList.remove('d-none');
-      previewImage.onerror = () => {
-        previewImage.classList.add('d-none');
-        linkFeedback.classList.remove('d-none');
-      };
-      previewImage.onload = () => {
-        linkFeedback.classList.add('d-none');
-      };
     } else {
-      previewImage.classList.add('d-none');
-      linkFeedback.classList.remove('d-none');
+      previewImage.src = '';
     }
-  });
+
+    currentFormIndex = (currentFormIndex + 1) % formOrder.length;
+    setTimeout(cyclePreview, 3000); // change every 3 seconds
+  }
 </script>
 {% endblock %}
