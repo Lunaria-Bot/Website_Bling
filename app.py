@@ -384,19 +384,21 @@ def update_user():
     flash("✅ User updated successfully")
     return redirect(url_for("manage"))
 # --- Approve --- 
-@app.route("/approve_card", methods=["POST"])
-def approve_card():
+@app.route("/process_card", methods=["POST"])
+def process_card():
     card_id = request.form["card_id"]
+    action = request.form["action"]
 
-    async def approve():
+    async def update_card():
         async with db_pool.acquire() as conn:
-            await conn.execute(
-                "UPDATE cards SET approved = TRUE WHERE id = $1",
-                int(card_id)
-            )
+            if action == "approved":
+                await conn.execute("UPDATE cards SET approved = TRUE WHERE id = $1", int(card_id))
+                flash(f"✅ Card {card_id} approved")
+            elif action == "rejected":
+                await conn.execute("DELETE FROM cards WHERE id = $1", int(card_id))
+                flash(f"❌ Card {card_id} rejected and removed")
 
-    loop.run_until_complete(approve())
-    flash(f"✅ Card {card_id} approved")
+    loop.run_until_complete(update_card())
     return redirect(url_for("admin_dashboard"))
 
 # --- Run Server ---
