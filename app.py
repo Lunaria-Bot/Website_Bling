@@ -168,7 +168,7 @@ def add_card():
         image_url = request.form["image_url"]
         description = request.form["description"]
 
-        character_name = f"{base_name} ({form.capitalize()})"
+        character_name = base_name  # keep it clean
         card_code = str(uuid.uuid4())
 
         async def insert_card():
