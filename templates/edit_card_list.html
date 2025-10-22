@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Modifier la liste des cartes</title>
+  <title>Edit Card List</title>
   <style>
     body {
       background: linear-gradient(135deg, #0f0f1a, #1a1a2e);
@@ -42,6 +42,9 @@
       max-height: 100px;
       border-radius: 8px;
     }
+    .actions form {
+      display: inline;
+    }
     .actions button {
       background: #00ffff;
       border: none;
@@ -59,13 +62,13 @@
   </style>
 </head>
 <body>
-  <h1>🃏 Modifier la liste des cartes</h1>
+  <h1>🃏 Edit Card List</h1>
   <table>
     <thead>
       <tr>
-        <th>Nom</th>
+        <th>Name</th>
         <th>Code</th>
-        <th>Forme</th>
+        <th>Form</th>
         <th>Image</th>
         <th>Actions</th>
       </tr>
@@ -78,11 +81,12 @@
         <td>{{ card.form }}</td>
         <td><img src="{{ card.image_url }}" alt="{{ card.character_name }}"></td>
         <td class="actions">
-          <form method="POST" action="/edit_card/{{ card.id }}" style="display:inline;">
-            <button type="submit">✏️ Modifier</button>
+          <form method="POST" action="/edit_card/{{ card.id }}">
+            <button type="submit">✏️ Edit</button>
           </form>
-          <form method="POST" action="/delete_card/{{ card.id }}" style="display:inline;">
-            <button type="submit">🗑️ Supprimer</button>
+          <form method="POST" action="{{ url_for('delete_card') }}" onsubmit="return confirm('Delete this card?')">
+            <input type="hidden" name="card_id" value="{{ card.id }}">
+            <button type="submit">🗑️ Delete</button>
           </form>
         </td>
       </tr>
