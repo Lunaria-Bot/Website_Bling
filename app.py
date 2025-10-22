@@ -164,24 +164,25 @@ def add_card():
     if request.method == "POST":
         base_name = request.form["base_name"]
         form = request.form["form"]
-        description = request.form["description"]
         image_url = request.form["image_url"]
+        description = request.form["description"]
 
         character_name = f"{base_name} ({form.capitalize()})"
+        card_code = str(uuid.uuid4())
 
         async def insert_card():
             async with db_pool.acquire() as conn:
                 await conn.execute("""
-                    INSERT INTO cards (character_name, form, image_url, description, approved)
-                    VALUES ($1, $2, $3, $4, TRUE)
-                """, character_name, form, image_url, description)
+                    INSERT INTO cards (code, character_name, form, image_url, description, approved)
+                    VALUES ($1, $2, $3, $4, $5, TRUE)
+                """, card_code, character_name, form, image_url, description)
 
         try:
             loop.run_until_complete(insert_card())
             flash("✅ Card added successfully!")
         except Exception as e:
-            print("Error adding card:", e)
-            flash("❌ Failed to add card. Please check your input or logs.")
+            print("❌ DB insert failed:", e)
+            flash("❌ Failed to add card. Check logs.")
 
         return redirect(url_for("add_card"))
 
