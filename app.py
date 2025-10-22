@@ -177,7 +177,7 @@ async def edit_card(card_id):
 
     return await render_template("edit_card_form.html", card=card)
  # --- ADD Card ---   
- @app.route("/add_card", methods=["GET", "POST"])
+@app.route("/add_card", methods=["GET", "POST"])
 async def add_card():
     if session.get("role") != "admin":
         return redirect(url_for("login"))
@@ -199,7 +199,6 @@ async def add_card():
         return redirect(url_for("admin_dashboard"))
 
     return await render_template("add_card.html")
-   
 
 # --- Delete Card ---
 @app.route("/delete_card", methods=["POST"])
