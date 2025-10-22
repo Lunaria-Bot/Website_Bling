@@ -1,3 +1,5 @@
-flask
-asyncpg
+flask[async]
+uvicorn
 gunicorn
+asyncpg
+jinja2
