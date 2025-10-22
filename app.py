@@ -133,8 +133,8 @@ async def admin_dashboard():
     }
 
     return await render_template("admin_dashboard.html", stats=stats)
- # --- HISTORY ---   
- @app.route("/history")
+# --- HISTORY ---   
+@app.route("/history")
 async def history():
     if not session.get("user_id"):
         return redirect(url_for("login"))
