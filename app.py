@@ -207,23 +207,27 @@ async def edit_card(card_id):
  # --- ADD Card ---   
 @app.route("/add_card", methods=["GET", "POST"])
 async def add_card():
-    if session.get("role") != "admin":
+    if session.get("role") not in ["admin", "card_maker"]:
         return redirect(url_for("login"))
 
     if request.method == "POST":
         form = await request.form
-        name = form["base_name"]
+        character_name = form["base_name"].strip()
         form_type = form["form"]
-        description = form["description"]
-        image_url = form["image_url"]
+        image_url = form.get("image_url", "").strip()
+        description = form.get("description", "").strip()
+
+        # Required fields
+        code = str(uuid.uuid4())
+        card_uuid = str(uuid.uuid4())
 
         async with db_pool.acquire() as conn:
             await conn.execute("""
-                INSERT INTO cards (character_name, form, description, image_url, created_at)
-                VALUES ($1, $2, $3, $4, NOW())
-            """, name, form_type, description, image_url)
+                INSERT INTO cards (uuid, code, character_name, form, image_url, description, approved)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+            """, card_uuid, code, character_name, form_type, image_url or None, description or None, session["role"] == "admin")
 
-        await flash(f"✅ Card '{name}' added successfully!")
+        await flash(f"✅ Card '{character_name}' added successfully!")
         return redirect(url_for("admin_dashboard"))
 
     return await render_template("add_card.html")
