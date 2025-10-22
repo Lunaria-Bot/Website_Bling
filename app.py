@@ -82,18 +82,25 @@ def admin_dashboard():
         return redirect(url_for("login"))
 
     if request.method == "POST":
-        card_id = int(request.form["card_id"])
+        card_id = request.form["card_id"]
         action = request.form["action"]
 
-        async def update_status():
+        async def process_card():
             async with db_pool.acquire() as conn:
-                await conn.execute(
-                    "UPDATE card_queue SET status=$1 WHERE id=$2",
-                    action, card_id
-                )
+                if action == "approved":
+                    card = await conn.fetchrow("SELECT * FROM pending_cards WHERE id = $1", card_id)
+                    await conn.execute("""
+                        INSERT INTO cards (code, character_name, form, image_url, description, event_name, created_at, approved)
+                        VALUES ($1, $2, $3, $4, $5, $6, NOW(), TRUE)
+                    """, card["id"], card["character_name"], card["form"], card["image_url"], card["description"], card["event_name"])
+                    await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
+                    await conn.execute("INSERT INTO card_queue (card_id, action) VALUES ($1, 'add')", card["id"])
+                    flash(f"✅ Card {card['character_name']} approved")
+                elif action == "rejected":
+                    await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
+                    flash("❌ Card rejected and removed")
 
-        loop.run_until_complete(update_status())
-        flash(f"✅ Card #{card_id} marked as {action}.")
+        loop.run_until_complete(process_card())
         return redirect(url_for("admin_dashboard"))
 
     async def fetch_stats_and_recent():
@@ -107,9 +114,8 @@ def admin_dashboard():
                 FROM cards ORDER BY created_at DESC LIMIT 5
             """)
             pending = await conn.fetch("""
-                SELECT id, title, description, image_url, submitted_by, form_type, created_at
-                FROM card_queue WHERE status = 'pending'
-                ORDER BY created_at DESC LIMIT 5
+                SELECT id, character_name, form, image_url, description, event_name, submitted_by, created_at
+                FROM pending_cards ORDER BY created_at DESC LIMIT 5
             """)
             return {
                 "total": total,
@@ -130,19 +136,20 @@ def submit_card():
         return redirect(url_for("login"))
 
     if request.method == "POST":
-        title = request.form["title"]
-        form_type = request.form["form_type"]
+        character_name = request.form["title"]
+        form = request.form["form_type"]
         description = request.form["description"]
         image_url = request.form["image_url"]
+        submitted_by = session["username"]
 
-        async def queue_card():
+        async def insert_pending():
             async with db_pool.acquire() as conn:
                 await conn.execute("""
-                    INSERT INTO card_queue (title, description, image_url, submitted_by, status, form_type)
-                    VALUES ($1, $2, $3, $4, 'pending', $5)
-                """, title, description, image_url, session["username"], form_type)
+                    INSERT INTO pending_cards (character_name, form, image_url, description, event_name, submitted_by)
+                    VALUES ($1, $2, $3, $4, NULL, $5)
+                """, character_name, form, image_url, description, submitted_by)
 
-        loop.run_until_complete(queue_card())
+        loop.run_until_complete(insert_pending())
         flash("✅ Card submitted and awaiting admin validation.")
         return redirect(url_for("submit_card"))
 
@@ -165,8 +172,8 @@ def add_card():
                     character_name = f"{base_name} ({form.capitalize()})"
                     image_url = request.form[f"image_{form}"]
                     await conn.execute("""
-                        INSERT INTO cards (character_name, form, image_url, description)
-                        VALUES ($1, $2, $3, $4)
+                        INSERT INTO cards (character_name, form, image_url, description, approved)
+                        VALUES ($1, $2, $3, $4, TRUE)
                     """, character_name, form, image_url, description)
 
         loop.run_until_complete(insert_cards())
@@ -186,7 +193,11 @@ def history():
 
     async def fetch_cards():
         async with db_pool.acquire() as conn:
-            query = "SELECT id, character_name, form, image_url, description, created_at FROM cards"
+            query = """
+                SELECT id, character_name, form, image_url, description, created_at
+                FROM cards
+                WHERE approved = TRUE
+            """
             conditions = []
             params = []
             if form_filter and form_filter != "all":
@@ -196,7 +207,7 @@ def history():
                 conditions.append("character_name ILIKE $%d" % (len(params)+1))
                 params.append(f"%{search}%")
             if conditions:
-                query += " WHERE " + " AND ".join(conditions)
+                query += " AND " + " AND ".join(conditions)
             query += " ORDER BY created_at DESC LIMIT 50"
             return await conn.fetch(query, *params)
 
@@ -215,7 +226,6 @@ def edit_card_list():
 
     cards = loop.run_until_complete(fetch_all_cards())
     return render_template("edit_card_list.html", cards=cards)
-
 # --- Edit Specific Card ---
 @app.route("/edit/<int:card_id>", methods=["GET", "POST"])
 def edit_card(card_id):
@@ -350,7 +360,7 @@ def manage():
 
     admins = loop.run_until_complete(fetch_all_admins())
     return render_template("manage.html", users=admins)
-    
+
 # --- Edit user --- 
 @app.route("/edit_user/<int:user_id>")
 def edit_user(user_id):
@@ -366,7 +376,8 @@ def edit_user(user_id):
         return redirect(url_for("manage"))
 
     return render_template("edit_user.html", user=user)
- # --- Update User ---    
+
+# --- Update User ---    
 @app.route("/update_user", methods=["POST"])
 def update_user():
     user_id = request.form["user_id"]
@@ -383,7 +394,8 @@ def update_user():
     loop.run_until_complete(update_admin())
     flash("✅ User updated successfully")
     return redirect(url_for("manage"))
-# --- Approve --- 
+
+# --- Approve (from pending_cards to cards) --- 
 @app.route("/process_card", methods=["POST"])
 def process_card():
     card_id = request.form["card_id"]
@@ -392,10 +404,16 @@ def process_card():
     async def update_card():
         async with db_pool.acquire() as conn:
             if action == "approved":
-                await conn.execute("UPDATE cards SET approved = TRUE WHERE id = $1", int(card_id))
-                flash(f"✅ Card {card_id} approved")
+                card = await conn.fetchrow("SELECT * FROM pending_cards WHERE id = $1", card_id)
+                await conn.execute("""
+                    INSERT INTO cards (code, character_name, form, image_url, description, event_name, created_at, approved)
+                    VALUES ($1, $2, $3, $4, $5, $6, NOW(), TRUE)
+                """, card["id"], card["character_name"], card["form"], card["image_url"], card["description"], card["event_name"])
+                await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
+                await conn.execute("INSERT INTO card_queue (card_id, action) VALUES ($1, 'add')", card["id"])
+                flash(f"✅ Card {card['character_name']} approved")
             elif action == "rejected":
-                await conn.execute("DELETE FROM cards WHERE id = $1", int(card_id))
+                await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
                 flash(f"❌ Card {card_id} rejected and removed")
 
     loop.run_until_complete(update_card())
