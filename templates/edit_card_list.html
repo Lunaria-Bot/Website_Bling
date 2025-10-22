@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Modifier la liste des cartes</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f0f1a, #1a1a2e);
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    th {
+      background: rgba(0, 255, 255, 0.1);
+      color: #00ffff;
+    }
+    tr:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    img {
+      max-height: 100px;
+      border-radius: 8px;
+    }
+    .actions button {
+      background: #00ffff;
+      border: none;
+      padding: 0.5rem 1rem;
+      margin-right: 0.5rem;
+      border-radius: 6px;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .actions button:hover {
+      background: #00e0e0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🃏 Modifier la liste des cartes</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Code</th>
+        <th>Forme</th>
+        <th>Image</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for card in cards %}
+      <tr>
+        <td>{{ card.character_name }}</td>
+        <td>{{ card.code }}</td>
+        <td>{{ card.form }}</td>
+        <td><img src="{{ card.image_url }}" alt="{{ card.character_name }}"></td>
+        <td class="actions">
+          <form method="POST" action="/edit_card/{{ card.id }}" style="display:inline;">
+            <button type="submit">✏️ Modifier</button>
+          </form>
+          <form method="POST" action="/delete_card/{{ card.id }}" style="display:inline;">
+            <button type="submit">🗑️ Supprimer</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
