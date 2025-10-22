@@ -89,7 +89,7 @@ async def logout():
     flash("Logged out.")
     return redirect(url_for("login"))
 # --- Admin Dashboard ---
- @app.route("/admin", methods=["GET", "POST"])
+@app.route("/admin", methods=["GET", "POST"])
 async def admin_dashboard():
     if session.get("role") != "admin":
         return redirect(url_for("login"))
