@@ -296,7 +296,77 @@ async def search_player():
         return redirect(url_for("player_profile", discord_id=discord_id))
 
     return await render_template("search_player.html")
+# --- Profile ---    
+@app.route("/profile/<discord_id>")
+async def player_profile(discord_id):
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
 
+    discord_id = str(discord_id).strip()
+
+    async with db_pool.acquire() as conn:
+        player = await conn.fetchrow("""
+            SELECT id, discord_id, username, discord_tag, avatar_url, bloodcoins, noblecoins,
+                   level, xp, achievements, created_at, updated_at
+            FROM players
+            WHERE discord_id = $1
+        """, discord_id)
+
+        if not player:
+            return await render_template("player_not_found.html", discord_id=discord_id)
+
+        cards = await conn.fetch("""
+            SELECT id, character_name, image_url
+            FROM cards
+            WHERE owner_id = $1
+            ORDER BY created_at DESC
+        """, player["id"])
+
+        all_cards = await conn.fetch("""
+            SELECT id, character_name
+            FROM cards
+            WHERE owner_id IS NULL
+            ORDER BY id DESC
+        """)
+
+    player = dict(player)
+    player["xp_max"] = 172
+    player["created_at"] = player["created_at"].strftime("%d %b %Y") if player["created_at"] else "Unknown"
+    player["updated_at"] = player["updated_at"].strftime("%d %b %Y") if player["updated_at"] else "Unknown"
+
+    return await render_template("profile.html", player=player, cards=cards, all_cards=all_cards)
+@app.route("/add_card_to_player", methods=["POST"])
+async def add_card_to_player():
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    form = await request.form
+    card_id = int(form["card_id"])
+    player_id = int(form["player_id"])
+    discord_id = str(form["discord_id"])
+
+    async with db_pool.acquire() as conn:
+        await conn.execute("UPDATE cards SET owner_id = $1 WHERE id = $2", player_id, card_id)
+
+    await flash("✅ Card assigned.")
+    return redirect(url_for("player_profile", discord_id=discord_id))
+
+
+@app.route("/remove_card_from_player", methods=["POST"])
+async def remove_card_from_player():
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    form = await request.form
+    card_id = int(form["card_id"])
+    discord_id = str(form["discord_id"])
+
+    async with db_pool.acquire() as conn:
+        await conn.execute("UPDATE cards SET owner_id = NULL WHERE id = $1", card_id)
+
+    await flash("🗑️ Card removed.")
+    return redirect(url_for("player_profile", discord_id=discord_id))
+    
 # --- Manager ---
 @app.route("/manage")
 async def manage():
