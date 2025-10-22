@@ -249,8 +249,20 @@ async def process_card():
     async with db_pool.acquire() as conn:
         if action == "approved":
             card = await conn.fetchrow("SELECT * FROM pending_cards WHERE id = $1", card_id)
-           await conn.execute("""
-    INSERT INTO cards (code, character_name, form, image_url, description, event_name, created_at, approved)
-    VALUES ($1, $2, $3, $4, $5, $6, NOW(), TRUE)
-""", card["id"], card["character_name"], card["form"], card["image_url"], card["description"], card["event_name"])
+            await conn.execute("""
+                INSERT INTO cards (code, character_name, form, image_url, description, event_name, created_at, approved)
+                VALUES ($1, $2, $3, $4, $5, $6, NOW(), TRUE)
+            """, card["id"], card["character_name"], card["form"], card["image_url"], card["description"], card["event_name"])
+            await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
+            await conn.execute("INSERT INTO card_queue (card_id, action) VALUES ($1, 'add')", card["id"])
+            flash(f"✅ Card {card['character_name']} approved")
+        elif action == "rejected":
+            await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
+            flash(f"❌ Card {card_id} rejected and removed")
 
+    return redirect(url_for("admin_dashboard"))
+
+# --- Run Server ---
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app:app", host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
