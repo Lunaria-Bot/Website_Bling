@@ -163,21 +163,26 @@ def add_card():
 
     if request.method == "POST":
         base_name = request.form["base_name"]
+        form = request.form["form"]
         description = request.form["description"]
-        forms = ["base", "awakened", "event"]
+        image_url = request.form["image_url"]
 
-        async def insert_cards():
+        character_name = f"{base_name} ({form.capitalize()})"
+
+        async def insert_card():
             async with db_pool.acquire() as conn:
-                for form in forms:
-                    character_name = f"{base_name} ({form.capitalize()})"
-                    image_url = request.form[f"image_{form}"]
-                    await conn.execute("""
-                        INSERT INTO cards (character_name, form, image_url, description, approved)
-                        VALUES ($1, $2, $3, $4, TRUE)
-                    """, character_name, form, image_url, description)
+                await conn.execute("""
+                    INSERT INTO cards (character_name, form, image_url, description, approved)
+                    VALUES ($1, $2, $3, $4, TRUE)
+                """, character_name, form, image_url, description)
 
-        loop.run_until_complete(insert_cards())
-        flash("✅ All forms added successfully!")
+        try:
+            loop.run_until_complete(insert_card())
+            flash("✅ Card added successfully!")
+        except Exception as e:
+            print("Error adding card:", e)
+            flash("❌ Failed to add card. Please check your input or logs.")
+
         return redirect(url_for("add_card"))
 
     return render_template("add_card.html")
