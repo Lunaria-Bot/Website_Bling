@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Edit {{ card.character_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <h1 class="text-center text-info mb-4">🛠️ Edit Card #{{ card.id }}</h1>
+  <form method="POST" class="glass-card p-4 mx-auto" style="max-width: 600px;">
+    <div class="mb-3">
+      <label class="form-label text-light">Character Name</label>
+      <input type="text" name="character_name" class="form-control bg-dark text-light" value="{{ card.character_name }}" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label text-light">Form</label>
+      <select name="form" class="form-select bg-dark text-light">
+        <option value="base" {% if card.form == 'base' %}selected{% endif %}>Base</option>
+        <option value="awakened" {% if card.form == 'awakened' %}selected{% endif %}>Awakened</option>
+        <option value="event" {% if card.form == 'event' %}selected{% endif %}>Event</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label text-light">Image URL</label>
+      <input type="text" name="image_url" class="form-control bg-dark text-light" value="{{ card.image_url }}" required>
+      <img src="{{ card.image_url }}" alt="Preview" class="img-fluid mt-2 rounded" style="max-height: 200px;">
+    </div>
+    <div class="mb-3">
+      <label class="form-label text-light">Description</label>
+      <textarea name="description" class="form-control bg-dark text-light" rows="4">{{ card.description }}</textarea>
+    </div>
+    <div class="text-center">
+      <button type="submit" class="btn btn-primary px-4">💾 Save Changes</button>
+      <a href="{{ url_for('edit_card_list') }}" class="btn btn-secondary ms-2">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
