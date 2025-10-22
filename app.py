@@ -383,6 +383,21 @@ def update_user():
     loop.run_until_complete(update_admin())
     flash("✅ User updated successfully")
     return redirect(url_for("manage"))
+# --- Approve --- 
+@app.route("/approve_card", methods=["POST"])
+def approve_card():
+    card_id = request.form["card_id"]
+
+    async def approve():
+        async with db_pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE cards SET approved = TRUE WHERE id = $1",
+                int(card_id)
+            )
+
+    loop.run_until_complete(approve())
+    flash(f"✅ Card {card_id} approved")
+    return redirect(url_for("admin_dashboard"))
 
 # --- Run Server ---
 if __name__ == "__main__":
