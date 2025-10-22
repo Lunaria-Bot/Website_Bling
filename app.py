@@ -335,22 +335,6 @@ async def player_profile(discord_id):
     player["updated_at"] = player["updated_at"].strftime("%d %b %Y") if player["updated_at"] else "Unknown"
 
     return await render_template("profile.html", player=player, cards=cards, all_cards=all_cards)
-@app.route("/add_card_to_player", methods=["POST"])
-async def add_card_to_player():
-    if session.get("role") != "admin":
-        return redirect(url_for("login"))
-
-    form = await request.form
-    card_id = int(form["card_id"])
-    player_id = int(form["player_id"])
-    discord_id = str(form["discord_id"])
-
-    async with db_pool.acquire() as conn:
-        await conn.execute("UPDATE cards SET owner_id = $1 WHERE id = $2", player_id, card_id)
-
-    await flash("✅ Card assigned.")
-    return redirect(url_for("player_profile", discord_id=discord_id))
-
 
 @app.route("/remove_card_from_player", methods=["POST"])
 async def remove_card_from_player():
