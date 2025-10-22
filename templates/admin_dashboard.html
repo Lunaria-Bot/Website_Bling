@@ -67,7 +67,7 @@
         <p class="text-light">{{ card.description }}</p>
         <p class="text-muted"><strong>Form:</strong> {{ card.form_type|capitalize }}</p>
         <p class="text-muted"><strong>Submitted by:</strong> {{ card.submitted_by }}</p>
-        <form method="POST" action="{{ url_for('admin_dashboard') }}" class="d-flex justify-content-between">
+        <form method="POST" action="{{ url_for('process_card') }}" class="d-flex justify-content-between">
           <input type="hidden" name="card_id" value="{{ card.id }}">
           <button name="action" value="approved" class="btn btn-success">Approve</button>
           <button name="action" value="rejected" class="btn btn-danger">Decline</button>
