@@ -336,21 +336,6 @@ async def player_profile(discord_id):
 
     return await render_template("profile.html", player=player, cards=cards, all_cards=all_cards)
 
-@app.route("/remove_card_from_player", methods=["POST"])
-async def remove_card_from_player():
-    if session.get("role") != "admin":
-        return redirect(url_for("login"))
-
-    form = await request.form
-    card_id = int(form["card_id"])
-    discord_id = str(form["discord_id"])
-
-    async with db_pool.acquire() as conn:
-        await conn.execute("UPDATE cards SET owner_id = NULL WHERE id = $1", card_id)
-
-    await flash("🗑️ Card removed.")
-    return redirect(url_for("player_profile", discord_id=discord_id))
-    
 # --- Manager ---
 @app.route("/manage")
 async def manage():
