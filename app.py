@@ -17,6 +17,11 @@ async def startup():
         ssl="require"
     )
 
+# --- Root Route ---
+@app.route("/")
+async def home():
+    return redirect(url_for("login"))
+
 # --- Login ---
 @app.route("/login", methods=["GET", "POST"])
 async def login():
