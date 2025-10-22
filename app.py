@@ -176,6 +176,30 @@ async def edit_card(card_id):
             return redirect(url_for("edit_card_list"))
 
     return await render_template("edit_card_form.html", card=card)
+ # --- ADD Card ---   
+ @app.route("/add_card", methods=["GET", "POST"])
+async def add_card():
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        form = await request.form
+        name = form["base_name"]
+        form_type = form["form"]
+        description = form["description"]
+        image_url = form["image_url"]
+
+        async with db_pool.acquire() as conn:
+            await conn.execute("""
+                INSERT INTO cards (character_name, form, description, image_url, created_at)
+                VALUES ($1, $2, $3, $4, NOW())
+            """, name, form_type, description, image_url)
+
+        await flash(f"✅ Card '{name}' added successfully!")
+        return redirect(url_for("admin_dashboard"))
+
+    return await render_template("add_card.html")
+   
 
 # --- Delete Card ---
 @app.route("/delete_card", methods=["POST"])
