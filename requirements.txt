@@ -1,4 +1,6 @@
 quart
+gunicorn
+uvicorn
 asyncpg
 jinja2
-gunicorn
+werkzeug
