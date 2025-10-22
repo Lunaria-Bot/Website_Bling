@@ -1,35 +1,36 @@
 import os
-import asyncio
 import asyncpg
 import uuid
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from quart import Quart, render_template, request, redirect, url_for, flash, session, abort
 from werkzeug.security import check_password_hash
 
-app = Flask(__name__)
-app.config["DEBUG"] = True
+app = Quart(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "supersecret")
 
-loop = asyncio.get_event_loop()
-db_pool = loop.run_until_complete(asyncpg.create_pool(
-    dsn=os.getenv("DATABASE_URL"),
-    ssl="require"
-))
+db_pool = None
+
+@app.before_serving
+async def startup():
+    global db_pool
+    db_pool = await asyncpg.create_pool(
+        dsn=os.getenv("DATABASE_URL"),
+        ssl="require"
+    )
 
 # --- Login ---
 @app.route("/login", methods=["GET", "POST"])
-def login():
+async def login():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        form = await request.form
+        username = form["username"]
+        password = form["password"]
 
-        async def fetch_admin():
-            async with db_pool.acquire() as conn:
-                return await conn.fetchrow(
-                    "SELECT id, username, password_hash, role FROM admins WHERE username=$1",
-                    username
-                )
+        async with db_pool.acquire() as conn:
+            admin = await conn.fetchrow(
+                "SELECT id, username, password_hash, role FROM admins WHERE username=$1",
+                username
+            )
 
-        admin = loop.run_until_complete(fetch_admin())
         if admin and check_password_hash(admin["password_hash"], password):
             session["user_id"] = admin["id"]
             session["username"] = admin["username"]
@@ -44,22 +45,21 @@ def login():
         else:
             flash("❌ Invalid credentials")
 
-    return render_template("login.html")
+    return await render_template("login.html")
 
 @app.route("/cardmaker_login", methods=["GET", "POST"])
-def cardmaker_login():
+async def cardmaker_login():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        form = await request.form
+        username = form["username"]
+        password = form["password"]
 
-        async def fetch_user():
-            async with db_pool.acquire() as conn:
-                return await conn.fetchrow(
-                    "SELECT id, username, password_hash, role FROM admins WHERE username=$1",
-                    username
-                )
+        async with db_pool.acquire() as conn:
+            user = await conn.fetchrow(
+                "SELECT id, username, password_hash, role FROM admins WHERE username=$1",
+                username
+            )
 
-        user = loop.run_until_complete(fetch_user())
         if user and user["role"] == "card_maker" and check_password_hash(user["password_hash"], password):
             session["user_id"] = user["id"]
             session["username"] = user["username"]
@@ -69,13 +69,14 @@ def cardmaker_login():
         else:
             flash("❌ Invalid credentials or role")
 
-    return render_template("cardmaker_login.html")
+    return await render_template("cardmaker_login.html")
 
 @app.route("/logout")
-def logout():
+async def logout():
     session.clear()
     flash("Logged out.")
     return redirect(url_for("login"))
+
 # --- Edit Card List ---
 @app.route("/edit_card_list")
 async def edit_card_list():
@@ -99,10 +100,11 @@ async def edit_card(card_id):
             abort(404)
 
         if request.method == "POST":
-            name = request.form["character_name"]
-            form = request.form["form"]
-            image_url = request.form["image_url"]
-            description = request.form["description"]
+            form = await request.form
+            name = form["character_name"]
+            form_type = form["form"]
+            image_url = form["image_url"]
+            description = form["description"]
 
             await conn.execute("""
                 UPDATE cards
@@ -111,7 +113,7 @@ async def edit_card(card_id):
                     image_url = $3,
                     description = $4
                 WHERE id = $5
-            """, name, form, image_url, description, card_id)
+            """, name, form_type, image_url, description, card_id)
 
             return redirect(url_for("edit_card_list"))
 
@@ -123,7 +125,8 @@ async def delete_card():
     if session.get("role") != "admin":
         return redirect(url_for("login"))
 
-    card_id = int(request.form.get("card_id"))
+    form = await request.form
+    card_id = int(form.get("card_id"))
     async with db_pool.acquire() as conn:
         await conn.execute("DELETE FROM cards WHERE id=$1", card_id)
 
@@ -159,9 +162,10 @@ async def add_card_to_player():
     if session.get("role") != "admin":
         return redirect(url_for("login"))
 
-    player_id = int(request.form.get("player_id"))
-    card_id = int(request.form.get("card_id"))
-    discord_id = request.form.get("discord_id")
+    form = await request.form
+    player_id = int(form.get("player_id"))
+    card_id = int(form.get("card_id"))
+    discord_id = form.get("discord_id")
 
     async with db_pool.acquire() as conn:
         await conn.execute("UPDATE cards SET owner_id=$1 WHERE id=$2", player_id, card_id)
@@ -175,8 +179,9 @@ async def remove_card_from_player():
     if session.get("role") != "admin":
         return redirect(url_for("login"))
 
-    card_id = int(request.form.get("card_id"))
-    discord_id = request.form.get("discord_id")
+    form = await request.form
+    card_id = int(form.get("card_id"))
+    discord_id = form.get("discord_id")
 
     async with db_pool.acquire() as conn:
         await conn.execute("UPDATE cards SET owner_id=NULL WHERE id=$1", card_id)
@@ -191,7 +196,8 @@ async def search_player():
         return redirect(url_for("login"))
 
     if request.method == "POST":
-        discord_id = request.form.get("discord_id").strip()
+        form = await request.form
+        discord_id = form.get("discord_id").strip()
         return redirect(url_for("player_profile", discord_id=discord_id))
 
     return await render_template("search_player.html")
@@ -219,9 +225,10 @@ async def edit_user(user_id):
 # --- Update User ---
 @app.route("/update_user", methods=["POST"])
 async def update_user():
-    user_id = int(request.form["user_id"])
-    username = request.form["username"]
-    role = request.form["role"]
+    form = await request.form
+    user_id = int(form["user_id"])
+    username = form["username"]
+    role = form["role"]
 
     async with db_pool.acquire() as conn:
         await conn.execute(
@@ -235,26 +242,13 @@ async def update_user():
 # --- Approve Card ---
 @app.route("/process_card", methods=["POST"])
 async def process_card():
-    card_id = request.form["card_id"]
-    action = request.form["action"]
+    form = await request.form
+    card_id = form["card_id"]
+    action = form["action"]
 
     async with db_pool.acquire() as conn:
         if action == "approved":
             card = await conn.fetchrow("SELECT * FROM pending_cards WHERE id = $1", card_id)
             await conn.execute("""
                 INSERT INTO cards (code, character_name, form, image_url, description, event_name, created_at, approved)
-                VALUES ($1, $2, $3, $4, $5, $6, NOW(), TRUE)
-            """, card["id"], card["character_name"], card["form"], card["image_url"], card["description"], card["event_name"])
-            await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
-            await conn.execute("INSERT INTO card_queue (card_id, action) VALUES ($1, 'add')", card["id"])
-            flash(f"✅ Card {card['character_name']} approved")
-        elif action == "rejected":
-            await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
-            flash(f"❌ Card {card_id} rejected and removed")
-
-    return redirect(url_for("admin_dashboard"))
-
-# --- Run Server ---
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("app:app", host="0.0.0.0", port=int(os.getenv("PORT", 5000)), reload=True)
+                VALUES ($1, $2, $3, $4, $5, $6, NOW
