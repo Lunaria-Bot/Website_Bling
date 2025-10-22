@@ -6,6 +6,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from werkzeug.security import check_password_hash
 
 app = Flask(__name__)
+app.config["DEBUG"] = True
 app.secret_key = os.getenv("SECRET_KEY", "supersecret")
 
 loop = asyncio.get_event_loop()
