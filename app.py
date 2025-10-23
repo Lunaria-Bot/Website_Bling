@@ -307,7 +307,7 @@ async def player_profile(discord_id):
     async with db_pool.acquire() as conn:
         player = await conn.fetchrow("""
             SELECT id, discord_id, username, discord_tag, avatar_url, bloodcoins, noblecoins,
-                   level, xp, achievements, created_at, updated_at
+                   level, xp, achievements, created_at, updated_at, gate_keys
             FROM players
             WHERE discord_id = $1
         """, discord_id)
