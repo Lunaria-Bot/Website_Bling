@@ -29,6 +29,11 @@
             <strong class="text-white">{{ player.noblecoins | int | format }}</strong>
             <small class="text-muted d-block">NobleCoins</small>
           </div>
+          <div class="col">
+            <i class="fas fa-key text-info"></i>
+            <strong class="text-white">{{ player.gate_keys | int | format }}</strong>
+            <small class="text-muted d-block">Gate Keys</small>
+          </div>
         </div>
         <p><strong class="text-light">Level:</strong> Lv. {{ player.level }} | {{ player.xp }}/{{ player.xp_max or 172 }} XP</p>
         <div class="progress bg-secondary mb-2" style="height: 8px;">
