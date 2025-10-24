@@ -11,7 +11,7 @@
         <div class="glass-card p-3">
           <img src="{{ card.image_url }}" alt="Card Image" class="img-fluid mb-3">
           <h5 class="text-info">{{ card.title }}</h5>
-          <p class="text-light">{{ card.description }}</p>
+          <p class="text-light"><strong>Origin:</strong> {{ card.series or "—" }}</p>
           <p class="text-muted"><strong>Submitted by:</strong> {{ card.submitted_by }}</p>
 
           <form method="POST" class="d-flex justify-content-between">
@@ -24,6 +24,9 @@
     {% endfor %}
   </div>
 {% else %}
-  <p class="text-muted">No pending submissions at the moment.</p>
+  <div class="glass-card text-center text-muted py-4 mx-auto" style="max-width: 500px;" data-aos="fade-up">
+    <i class="fas fa-inbox fa-2x mb-2"></i>
+    <p>No pending submissions at the moment.</p>
+  </div>
 {% endif %}
 {% endblock %}
