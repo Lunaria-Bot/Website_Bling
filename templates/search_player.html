@@ -2,17 +2,23 @@
 {% block title %}Search Player{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-6">
-    <div class="glass-card p-4 mt-5" data-aos="fade-up">
-      <h2 class="text-white mb-4">Search Player by Discord ID</h2>
-      <form method="POST" action="{{ url_for('search_player') }}">
-        <div class="mb-3">
-          <label for="discord_id" class="form-label text-light">Discord ID</label>
-          <input type="text" name="discord_id" id="discord_id" class="form-control bg-dark text-light border-secondary" required>
-        </div>
-        <button type="submit" class="btn btn-primary">View Profile</button>
-      </form>
+<div class="container-xl">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="glass-card p-4 mt-5 text-center" data-aos="fade-up">
+        <h2 class="text-white mb-4">
+          <i class="fas fa-search me-2"></i>Search Player by Discord ID
+        </h2>
+        <form method="POST" action="{{ url_for('search_player') }}">
+          <div class="mb-3 text-start">
+            <label for="discord_id" class="form-label text-light">Discord ID</label>
+            <input type="text" name="discord_id" id="discord_id" class="form-control bg-dark text-light border-secondary" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="fas fa-user me-1"></i> View Profile
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </div>
