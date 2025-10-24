@@ -39,7 +39,7 @@
               {{ c.character_name }}
               <small class="text-muted">({{ c.form|capitalize }})</small>
             </h5>
-            <p class="text-muted mb-2">{{ c.description }}</p>
+            <p class="text-muted mb-1"><strong>Origin:</strong> {{ c.series or "—" }}</p>
             <small class="text-muted">Added: {{ c.created_at }}</small>
           </div>
           <div class="text-end mt-3">
