@@ -23,8 +23,8 @@
       <img src="{{ card.image_url }}" alt="Preview" class="img-fluid mt-2 rounded" style="max-height: 200px;">
     </div>
     <div class="mb-3">
-      <label class="form-label text-light">Description</label>
-      <textarea name="description" class="form-control bg-dark text-light" rows="4">{{ card.description }}</textarea>
+      <label class="form-label text-light">Origin / Series</label>
+      <input type="text" name="series" class="form-control bg-dark text-light" value="{{ card.series or '' }}">
     </div>
     <div class="text-center">
       <button type="submit" class="btn btn-primary px-4">💾 Save Changes</button>
