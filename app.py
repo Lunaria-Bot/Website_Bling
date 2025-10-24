@@ -6,6 +6,7 @@ from werkzeug.security import check_password_hash
 
 app = Quart(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "supersecret")
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
 db_pool = None
 
@@ -386,8 +387,20 @@ async def process_card():
             await conn.execute("INSERT INTO card_queue (card_id, action) VALUES ($1, 'add')", card["id"])
             flash(f"✅ Card '{card['character_name']}' approved.")
 
+            # 🔔 Webhook Discord
+            if DISCORD_WEBHOOK_URL:
+                embed = {
+                    "title": f"✅ New Card Approved: {card['character_name']}",
+                    "description": f"**Form:** {card['form'].capitalize()}\n**Series:** {card['series'] or '—'}\n**Event:** {card['event_name'] or '—'}",
+                    "color": 3066993,
+                    "image": {"url": card["image_url"]},
+                    "footer": {"text": f"Card ID: {card['id']}"}
+                }
+                async with aiohttp.ClientSession() as session:
+                    await session.post(DISCORD_WEBHOOK_URL, json={"embeds": [embed]})
+
         elif action == "rejected":
-            deleted = await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
+            await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
             flash("🗑️ Card rejected and removed.")
 
         else:
