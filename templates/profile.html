@@ -56,7 +56,8 @@
         <div class="col-md-4 col-lg-3" data-aos="zoom-in">
           <div class="glass-card text-center p-3 glow-hover">
             <img src="{{ card.image_url }}" class="img-fluid mb-2" style="max-height: 180px;">
-            <p class="text-light">{{ card.character_name }}</p>
+            <p class="text-light mb-1">{{ card.character_name }}</p>
+            <p class="text-muted mb-2"><strong>Origin:</strong> {{ card.series or "—" }}</p>
             <form method="POST" action="{{ url_for('remove_card_from_player') }}">
               <input type="hidden" name="card_id" value="{{ card.id }}">
               <input type="hidden" name="discord_id" value="{{ player.discord_id }}">
@@ -85,7 +86,7 @@
             <label class="form-label text-light">Select Card</label>
             <select name="card_id" class="form-select bg-dark text-light border-secondary" required>
               {% for c in all_cards %}
-                <option value="{{ c.id }}">{{ c.character_name }}</option>
+                <option value="{{ c.id }}">{{ c.character_name }} — {{ c.series or "Unknown" }}</option>
               {% endfor %}
             </select>
           </div>
