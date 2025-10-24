@@ -357,16 +357,41 @@ async def update_user():
 @app.route("/process_card", methods=["POST"])
 async def process_card():
     form = await request.form
-    card_id = form["card_id"]
-    action = form["action"]
+    card_id = form.get("card_id")
+    action = form.get("action")
+
+    if not card_id or not action:
+        flash("❌ Missing card ID or action.")
+        return redirect(url_for("admin_dashboard"))
 
     async with db_pool.acquire() as conn:
+        try:
+            card_id = int(card_id)
+        except ValueError:
+            flash("❌ Invalid card ID format.")
+            return redirect(url_for("admin_dashboard"))
+
         if action == "approved":
             card = await conn.fetchrow("SELECT * FROM pending_cards WHERE id = $1", card_id)
+            if not card:
+                flash("❌ Card not found in pending submissions.")
+                return redirect(url_for("admin_dashboard"))
+
             await conn.execute("""
                 INSERT INTO cards (code, character_name, form, image_url, series, event_name, created_at, approved)
                 VALUES ($1, $2, $3, $4, $5, $6, NOW(), TRUE)
             """, card["id"], card["character_name"], card["form"], card["image_url"], card["series"], card["event_name"])
+
             await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
             await conn.execute("INSERT INTO card_queue (card_id, action) VALUES ($1, 'add')", card["id"])
-            flash(f"✅ Card {card['character_name']} approved")
+            flash(f"✅ Card '{card['character_name']}' approved.")
+
+        elif action == "rejected":
+            deleted = await conn.execute("DELETE FROM pending_cards WHERE id = $1", card_id)
+            flash("🗑️ Card rejected and removed.")
+
+        else:
+            flash("❌ Unknown action.")
+            return redirect(url_for("admin_dashboard"))
+
+    return redirect(url_for("admin_dashboard"))
