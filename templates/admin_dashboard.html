@@ -22,13 +22,13 @@
       <div class="col-md-6" data-aos="fade-up">
         <div class="glass-card p-3 glow-hover">
           <div role="button" data-bs-toggle="modal" data-bs-target="#previewModal"
-               data-id="{{ c.id }}" data-name="{{ c.character_name }}" data-form="{{ c.form }}" data-date="{{ c.created_at }}">
+               data-id="{{ c.id }}" data-name="{{ c.character_name }}" data-form="{{ c.form }}" data-date="{{ c.created_at }}" data-series="{{ c.series }}">
             <strong class="text-white">#{{ c.id }}</strong> — <span class="text-white">{{ c.character_name }}</span>
             <small class="text-muted">({{ c.form|capitalize }})</small><br>
-            <small class="text-muted">Added: {{ c.created_at }}</small>
+            <small class="text-muted">Added: {{ c.created_at }}</small><br>
+            <small class="text-muted">Origin: {{ c.series or "—" }}</small>
           </div>
 
-          <!-- 🔴 Delete Button -->
           <form method="POST" action="{{ url_for('delete_card') }}" class="mt-3 text-end" onsubmit="return confirm('Delete this card?')">
             <input type="hidden" name="card_id" value="{{ c.id }}">
             <button type="submit" class="btn btn-sm btn-danger">
@@ -54,7 +54,7 @@
       <div class="glass-card p-3" style="max-width: 420px;" data-aos="fade-up">
         <img src="{{ card.image_url }}" alt="Card Image" class="img-fluid mb-3 rounded">
         <h5 class="text-info">{{ card.title }}</h5>
-        <p class="text-light">{{ card.description }}</p>
+        <p class="text-light"><strong>Origin:</strong> {{ card.series or "—" }}</p>
         <p class="text-muted"><strong>Form:</strong> {{ card.form_type|capitalize }}</p>
         <p class="text-muted"><strong>Submitted by:</strong> {{ card.submitted_by }}</p>
         <form method="POST" action="{{ url_for('process_card') }}" class="d-flex justify-content-between">
@@ -85,6 +85,7 @@
         <p><strong>Name:</strong> <span id="modalName"></span></p>
         <p><strong>Form:</strong> <span id="modalForm"></span></p>
         <p><strong>Created:</strong> <span id="modalDate"></span></p>
+        <p><strong>Origin:</strong> <span id="modalSeries"></span></p>
       </div>
     </div>
   </div>
@@ -119,6 +120,7 @@
     document.getElementById('modalName').textContent = trigger.dataset.name;
     document.getElementById('modalForm').textContent = trigger.dataset.form;
     document.getElementById('modalDate').textContent = trigger.dataset.date;
+    document.getElementById('modalSeries').textContent = trigger.dataset.series;
   });
 </script>
 {% endblock %}
