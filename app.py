@@ -199,26 +199,39 @@ async def edit_card(card_id):
 
 @app.route("/add_card", methods=["GET", "POST"])
 async def add_card():
-    if session.get("role") not in ["admin", "card_maker"]:
-        return redirect(url_for("login"))
-
     if request.method == "POST":
         form = await request.form
-        character_name = form["base_name"].strip()
-        form_type = form["form"]
-        image_url = form.get("image_url", "").strip()
-        series = form.get("series", "").strip()
+        name = form.get("base_name")
+        form_type = form.get("form")
+        image_url = form.get("image_url")
+        series = form.get("series")
 
-        code = str(uuid.uuid4())
-        card_uuid = str(uuid.uuid4())
+        if not name or not form_type or not image_url:
+            flash("❌ Missing required fields.")
+            return redirect(url_for("add_card"))
 
         async with db_pool.acquire() as conn:
             await conn.execute("""
-                INSERT INTO cards (uuid, code, character_name, form, image_url, series, approved)
-                VALUES ($1, $2, $3, $4, $5, $6, $7)
-            """, card_uuid, code, character_name, form_type, image_url or None, series or None, session["role"] == "admin")
+                INSERT INTO cards (character_name, form, image_url, series, created_at, approved)
+                VALUES ($1, $2, $3, $4, NOW(), TRUE)
+            """, name, form_type, image_url, series)
 
-        flash(f"✅ Card '{character_name}' added successfully!")
+        flash(f"✅ Card '{name}' added successfully.")
+
+        # 🔔 Webhook Discord
+        if DISCORD_WEBHOOK_URL:
+            embed = {
+                "title": f"🆕 New Card Added: {name}",
+                "description": f"**Form:** {form_type.capitalize()}\n**Series:** {series or '—'}",
+                "color": 3447003,
+                "image": {"url": image_url},
+                "footer": {"text": "Added via Admin Panel"}
+            }
+            async with aiohttp.ClientSession() as session:
+                async with session.post(DISCORD_WEBHOOK_URL, json={"embeds": [embed]}) as resp:
+                    if resp.status != 204:
+                        print(f"❌ Webhook failed: {resp.status}")
+
         return redirect(url_for("admin_dashboard"))
 
     return await render_template("add_card.html")
