@@ -69,6 +69,7 @@
         <th>Name</th>
         <th>Code</th>
         <th>Form</th>
+        <th>Origin</th>
         <th>Image</th>
         <th>Actions</th>
       </tr>
@@ -79,6 +80,7 @@
         <td>{{ card.character_name }}</td>
         <td>{{ card.code }}</td>
         <td>{{ card.form }}</td>
+        <td>{{ card.series or "—" }}</td>
         <td><img src="{{ card.image_url }}" alt="{{ card.character_name }}"></td>
         <td class="actions">
           <form method="POST" action="/edit_card/{{ card.id }}">
