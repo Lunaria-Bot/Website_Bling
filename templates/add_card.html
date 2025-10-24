@@ -49,8 +49,8 @@
         </div>
 
         <div class="mb-3">
-          <label for="description" class="form-label text-light">Description</label>
-          <textarea class="form-control bg-dark text-light border-secondary" id="description" name="description" rows="4"></textarea>
+          <label for="series" class="form-label text-light">Origin / Series</label>
+          <input type="text" class="form-control bg-dark text-light border-secondary" id="series" name="series" placeholder="e.g. Jujutsu Kaisen">
         </div>
 
         <div class="mb-3">
@@ -70,7 +70,7 @@
       <div class="info">
         <h5 id="previewName" class="text-info">—</h5>
         <p><strong>Form:</strong> <span id="previewForm" class="text-warning">—</span></p>
-        <p id="previewDesc" class="text-white">—</p>
+        <p><strong>Origin:</strong> <span id="previewSeries" class="text-white">—</span></p>
       </div>
     </div>
   </div>
@@ -114,18 +114,18 @@
 <script>
   const nameInput = document.getElementById('base_name');
   const formSelect = document.getElementById('form');
-  const descInput = document.getElementById('description');
+  const seriesInput = document.getElementById('series');
   const linkInput = document.getElementById('image_url');
 
   const previewName = document.getElementById('previewName');
   const previewForm = document.getElementById('previewForm');
-  const previewDesc = document.getElementById('previewDesc');
+  const previewSeries = document.getElementById('previewSeries');
   const previewImage = document.getElementById('previewImage');
 
   function updatePreview() {
     previewName.textContent = nameInput.value || '—';
     previewForm.textContent = formSelect.value || '—';
-    previewDesc.textContent = descInput.value || '—';
+    previewSeries.textContent = seriesInput.value || '—';
 
     const url = linkInput.value;
     if (url && url.startsWith('http')) {
@@ -138,7 +138,7 @@
 
   nameInput.addEventListener('input', updatePreview);
   formSelect.addEventListener('change', updatePreview);
-  descInput.addEventListener('input', updatePreview);
+  seriesInput.addEventListener('input', updatePreview);
   linkInput.addEventListener('input', updatePreview);
 </script>
 {% endblock %}
