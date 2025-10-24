@@ -8,6 +8,7 @@ from werkzeug.security import check_password_hash
 app = Quart(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "supersecret")
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
+print("Webhook URL:", DISCORD_WEBHOOK_URL)
 
 db_pool = None
 
