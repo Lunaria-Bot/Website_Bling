@@ -441,22 +441,30 @@ async def process_card():
     return redirect(url_for("admin_dashboard"))
 @app.route("/upload_image", methods=["GET", "POST"])
 async def upload_image():
-    if request.method == "POST":
-        files = await request.files
-        image_file = files.get("image_file")
+    uploaded_url = None
+    search_results = []
 
-        if not image_file or not allowed_file(image_file.filename):
-            await flash("❌ Invalid or missing image.")
-            return redirect(url_for("upload_image"))
+    form = await request.form
+    files = await request.files
 
+    # Handle search
+    query = form.get("search_query")
+    if query:
+        all_files = os.listdir(UPLOAD_FOLDER)
+        search_results = [f for f in all_files if query.lower() in f.lower()]
+
+    # Handle upload
+    image_file = files.get("image_file")
+    custom_name = form.get("custom_name")
+
+    if image_file and allowed_file(image_file.filename):
         ext = image_file.filename.rsplit(".", 1)[1].lower()
-        filename = f"card_{uuid.uuid4().hex}.{ext}"
+        filename = secure_filename(custom_name) + "." + ext if custom_name else f"card_{uuid.uuid4().hex}.{ext}"
         save_path = os.path.join(UPLOAD_FOLDER, filename)
         await image_file.save(save_path)
 
         base_url = request.host_url.rstrip("/")
-        image_url = f"{base_url}/static/uploads/{filename}"
+        uploaded_url = f"{base_url}/static/uploads/{filename}"
 
-        return await render_template("upload_image.html", uploaded_url=image_url)
+    return await render_template("upload_image.html", uploaded_url=uploaded_url, search_results=search_results)
 
-    return await render_template("upload_image.html")    
