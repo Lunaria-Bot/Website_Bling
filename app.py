@@ -207,28 +207,19 @@ async def edit_card(card_id):
 async def add_card():
     if request.method == "POST":
         form = await request.form
-        files = await request.files
-
         name = form.get("base_name")
         form_type = form.get("form")
         series = form.get("series")
-        image_file = files.get("image_file")
+        image_url = form.get("image_url")
 
-        if not name or not form_type or not image_file:
+        if not name or not form_type or not image_url:
             await flash("❌ Missing required fields.")
             return redirect(url_for("add_card"))
 
-        if not allowed_file(image_file.filename):
-            await flash("❌ Invalid image format.")
+        if not image_url.startswith("http"):
+            await flash("❌ Invalid image URL.")
             return redirect(url_for("add_card"))
 
-        ext = image_file.filename.rsplit(".", 1)[1].lower()
-        filename = f"card_{uuid.uuid4().hex}.{ext}"
-        save_path = os.path.join(UPLOAD_FOLDER, filename)
-        await image_file.save(save_path)
-
-        base_url = request.host_url.rstrip("/")
-        image_url = f"{base_url}/static/uploads/{filename}"
         code = str(uuid.uuid4())
 
         async with db_pool.acquire() as conn:
