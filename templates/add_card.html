@@ -32,7 +32,7 @@
   <div class="col-md-9">
     <h1 class="page-title" data-aos="fade-down">Add a New Card</h1>
 
-    <form method="POST" action="{{ url_for('add_card') }}">
+    <form method="POST" action="{{ url_for('add_card') }}" enctype="multipart/form-data">
       <div class="glass-card p-4" data-aos="fade-up">
         <div class="mb-3">
           <label for="base_name" class="form-label text-light">Character Name</label>
@@ -54,8 +54,8 @@
         </div>
 
         <div class="mb-3">
-          <label for="image_url" class="form-label text-light">Image Link</label>
-          <input type="url" class="form-control bg-dark text-light border-secondary" id="image_url" name="image_url" placeholder="https://..." required>
+          <label for="image_file" class="form-label text-light">Upload Image</label>
+          <input type="file" class="form-control bg-dark text-light border-secondary" id="image_file" name="image_file" accept="image/*" required>
         </div>
 
         <div class="text-end">
@@ -115,8 +115,7 @@
   const nameInput = document.getElementById('base_name');
   const formSelect = document.getElementById('form');
   const seriesInput = document.getElementById('series');
-  const linkInput = document.getElementById('image_url');
-
+  const fileInput = document.getElementById('image_file');
   const previewName = document.getElementById('previewName');
   const previewForm = document.getElementById('previewForm');
   const previewSeries = document.getElementById('previewSeries');
@@ -126,11 +125,17 @@
     previewName.textContent = nameInput.value || '—';
     previewForm.textContent = formSelect.value || '—';
     previewSeries.textContent = seriesInput.value || '—';
+  }
 
-    const url = linkInput.value;
-    if (url && url.startsWith('http')) {
-      previewImage.src = url;
-      previewImage.classList.remove('d-none');
+  function previewUploadedImage(input) {
+    const file = input.files[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        previewImage.src = e.target.result;
+        previewImage.classList.remove('d-none');
+      };
+      reader.readAsDataURL(file);
     } else {
       previewImage.classList.add('d-none');
     }
@@ -139,6 +144,9 @@
   nameInput.addEventListener('input', updatePreview);
   formSelect.addEventListener('change', updatePreview);
   seriesInput.addEventListener('input', updatePreview);
-  linkInput.addEventListener('input', updatePreview);
+  fileInput.addEventListener('change', () => {
+    updatePreview();
+    previewUploadedImage(fileInput);
+  });
 </script>
 {% endblock %}
