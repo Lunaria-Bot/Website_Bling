@@ -439,3 +439,24 @@ async def process_card():
             return redirect(url_for("admin_dashboard"))
 
     return redirect(url_for("admin_dashboard"))
+@app.route("/upload_image", methods=["GET", "POST"])
+async def upload_image():
+    if request.method == "POST":
+        files = await request.files
+        image_file = files.get("image_file")
+
+        if not image_file or not allowed_file(image_file.filename):
+            await flash("❌ Invalid or missing image.")
+            return redirect(url_for("upload_image"))
+
+        ext = image_file.filename.rsplit(".", 1)[1].lower()
+        filename = f"card_{uuid.uuid4().hex}.{ext}"
+        save_path = os.path.join(UPLOAD_FOLDER, filename)
+        await image_file.save(save_path)
+
+        base_url = request.host_url.rstrip("/")
+        image_url = f"{base_url}/static/uploads/{filename}"
+
+        return await render_template("upload_image.html", uploaded_url=image_url)
+
+    return await render_template("upload_image.html")    
