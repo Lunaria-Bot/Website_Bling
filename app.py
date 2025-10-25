@@ -4,6 +4,7 @@ import uuid
 import aiohttp
 from quart import Quart, render_template, request, redirect, url_for, flash, session, abort
 from werkzeug.security import check_password_hash
+from werkzeug.utils import secure_filename
 
 app = Quart(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "supersecret")
