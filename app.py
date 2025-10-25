@@ -257,7 +257,7 @@ async def add_card():
         await flash(f"✅ Card '{name}' added successfully.")
         return redirect(url_for("admin_dashboard"))
 
-    return await render_template("add_card.html"
+    return await render_template("add_card.html")
 @app.route("/delete_card", methods=["POST"])
 async def delete_card():
     if session.get("role") != "admin":
