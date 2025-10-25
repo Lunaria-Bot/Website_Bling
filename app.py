@@ -208,6 +208,7 @@ async def add_card():
     if request.method == "POST":
         form = await request.form
         files = await request.files
+
         name = form.get("base_name")
         form_type = form.get("form")
         series = form.get("series")
@@ -221,11 +222,13 @@ async def add_card():
             await flash("❌ Invalid image format.")
             return redirect(url_for("add_card"))
 
-        filename = secure_filename(image_file.filename)
+        ext = image_file.filename.rsplit(".", 1)[1].lower()
+        filename = f"card_{uuid.uuid4().hex}.{ext}"
         save_path = os.path.join(UPLOAD_FOLDER, filename)
         await image_file.save(save_path)
 
-        image_url = f"/{save_path}"  # accessible via static route
+        base_url = request.host_url.rstrip("/")
+        image_url = f"{base_url}/static/uploads/{filename}"
         code = str(uuid.uuid4())
 
         async with db_pool.acquire() as conn:
@@ -234,7 +237,7 @@ async def add_card():
                 VALUES ($1, $2, $3, $4, $5, NOW(), TRUE)
             """, code, name, form_type, image_url, series)
 
-        # 🔔 Webhook Discord
+        # 🔔 Discord webhook
         if DISCORD_WEBHOOK_URL:
             embed = {
                 "title": f"🆕 New Card Added: {name}",
@@ -243,15 +246,18 @@ async def add_card():
                 "image": {"url": image_url},
                 "footer": {"text": f"Code: {code}"}
             }
-            async with aiohttp.ClientSession() as session:
-                async with session.post(DISCORD_WEBHOOK_URL, json={"embeds": [embed]}) as resp:
-                    if resp.status != 204:
-                        print(f"❌ Webhook failed: {resp.status}")
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.post(DISCORD_WEBHOOK_URL, json={"embeds": [embed]}) as resp:
+                        if resp.status != 204:
+                            print(f"❌ Webhook failed: {resp.status}")
+            except Exception as e:
+                print(f"❌ Webhook error: {e}")
 
         await flash(f"✅ Card '{name}' added successfully.")
         return redirect(url_for("admin_dashboard"))
 
-    return await render_template("add_card.html")
+    return await render_template("add_card.html"
 @app.route("/delete_card", methods=["POST"])
 async def delete_card():
     if session.get("role") != "admin":
