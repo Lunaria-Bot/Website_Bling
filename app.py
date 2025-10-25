@@ -239,23 +239,22 @@ async def add_card():
 
     return await render_template("add_card.html")
 
-        # 🔔 Webhook Discord
-        if DISCORD_WEBHOOK_URL:
-            embed = {
-                "title": f"🆕 New Card Added: {name}",
-                "description": f"**Form:** {form_type.capitalize()}\n**Series:** {series or '—'}",
-                "color": 3447003,
-                "image": {"url": image_url},
-                "footer": {"text": f"Code: {code}"}
-            }
-            async with aiohttp.ClientSession() as session:
-                async with session.post(DISCORD_WEBHOOK_URL, json={"embeds": [embed]}) as resp:
-                    if resp.status != 204:
-                        print(f"❌ Webhook failed: {resp.status}")
+# Dans une route ou une fonction
+if DISCORD_WEBHOOK_URL:
+    embed = {
+        "title": f"🆕 New Card Added: {name}",
+        "description": f"**Form:** {form_type.capitalize()}\n**Series:** {series or '—'}",
+        "color": 3447003,
+        "image": {"url": image_url},
+        "footer": {"text": f"Code: {code}"}
+    }
 
-        return redirect(url_for("admin_dashboard"))
+    async with aiohttp.ClientSession() as session:
+        await session.post(DISCORD_WEBHOOK_URL, json={"embeds": [embed]})
 
-    return await render_template("add_card.html")
+    return redirect(url_for("admin_dashboard"))
+
+return await render_template("add_card.html")
 
 @app.route("/delete_card", methods=["POST"])
 async def delete_card():
