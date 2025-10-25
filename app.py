@@ -9,6 +9,11 @@ app = Quart(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "supersecret")
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 print("Webhook URL:", DISCORD_WEBHOOK_URL)
+UPLOAD_FOLDER = "static/uploads"
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 db_pool = None
 
@@ -201,14 +206,25 @@ async def edit_card(card_id):
 async def add_card():
     if request.method == "POST":
         form = await request.form
+        files = await request.files
         name = form.get("base_name")
         form_type = form.get("form")
-        image_url = form.get("image_url")
         series = form.get("series")
+        image_file = files.get("image_file")
 
-        if not name or not form_type or not image_url:
+        if not name or not form_type or not image_file:
             await flash("❌ Missing required fields.")
             return redirect(url_for("add_card"))
+
+        if not allowed_file(image_file.filename):
+            await flash("❌ Invalid image format.")
+            return redirect(url_for("add_card"))
+
+        filename = secure_filename(image_file.filename)
+        save_path = os.path.join(UPLOAD_FOLDER, filename)
+        await image_file.save(save_path)
+
+        image_url = f"/{save_path}"  # accessible via static route
 
         code = str(uuid.uuid4())
 
@@ -219,6 +235,9 @@ async def add_card():
             """, code, name, form_type, image_url, series)
 
         await flash(f"✅ Card '{name}' added successfully.")
+        return redirect(url_for("admin_dashboard"))
+
+    return await render_template("add_card.html")
 
         # 🔔 Webhook Discord
         if DISCORD_WEBHOOK_URL:
