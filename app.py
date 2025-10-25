@@ -225,7 +225,6 @@ async def add_card():
         await image_file.save(save_path)
 
         image_url = f"/{save_path}"  # accessible via static route
-
         code = str(uuid.uuid4())
 
         async with db_pool.acquire() as conn:
@@ -234,28 +233,24 @@ async def add_card():
                 VALUES ($1, $2, $3, $4, $5, NOW(), TRUE)
             """, code, name, form_type, image_url, series)
 
+        # 🔔 Webhook Discord
+        if DISCORD_WEBHOOK_URL:
+            embed = {
+                "title": f"🆕 New Card Added: {name}",
+                "description": f"**Form:** {form_type.capitalize()}\n**Series:** {series or '—'}",
+                "color": 3447003,
+                "image": {"url": image_url},
+                "footer": {"text": f"Code: {code}"}
+            }
+            async with aiohttp.ClientSession() as session:
+                async with session.post(DISCORD_WEBHOOK_URL, json={"embeds": [embed]}) as resp:
+                    if resp.status != 204:
+                        print(f"❌ Webhook failed: {resp.status}")
+
         await flash(f"✅ Card '{name}' added successfully.")
         return redirect(url_for("admin_dashboard"))
 
     return await render_template("add_card.html")
-
-# Dans une route ou une fonction
-if DISCORD_WEBHOOK_URL:
-    embed = {
-        "title": f"🆕 New Card Added: {name}",
-        "description": f"**Form:** {form_type.capitalize()}\n**Series:** {series or '—'}",
-        "color": 3447003,
-        "image": {"url": image_url},
-        "footer": {"text": f"Code: {code}"}
-    }
-
-    async with aiohttp.ClientSession() as session:
-        await session.post(DISCORD_WEBHOOK_URL, json={"embeds": [embed]})
-
-    return redirect(url_for("admin_dashboard"))
-
-return await render_template("add_card.html")
-
 @app.route("/delete_card", methods=["POST"])
 async def delete_card():
     if session.get("role") != "admin":
