@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Inventaire{% endblock %}
+{% block content %}
+<div class="container">
+  <h1 class="page-title">📦 Inventaire</h1>
+  <div class="row">
+    {% for card in cards %}
+    <div class="col-md-4 mb-4">
+      <div class="glass-card p-3 h-100">
+        <img src="{{ card.image_url }}" class="img-fluid rounded mb-2">
+        <h5>{{ card.character_name }} <small class="text-muted">({{ card.form }})</small></h5>
+        <p><em>{{ card.series }}</em></p>
+        <p>XP: {{ card.xp }} | ❤️ {{ card.health }} | 🗡️ {{ card.attack }} | 💨 {{ card.speed }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
