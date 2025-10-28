@@ -1,1 +1,1 @@
-web: gunicorn app:app -k quart.worker
+web: gunicorn app:app -k quart.worker.AsyncWorker
