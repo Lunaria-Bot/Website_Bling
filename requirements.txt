@@ -2,4 +2,4 @@ quart
 authlib
 asyncpg
 python-dotenv
-gunicorn
+hypercorn
