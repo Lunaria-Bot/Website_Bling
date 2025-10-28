@@ -5,10 +5,9 @@ import os
 authy = Blueprint("authy", __name__)
 oauth = OAuth()
 
-# Load from .env or hardcoded fallback
-DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID")
-DISCORD_CLIENT_SECRET = os.getenv("DISCORD_CLIENT_SECRET")
-DISCORD_REDIRECT_URI = os.getenv("DISCORD_REDIRECT_URI", "http://localhost:5000/callback")
+DISCORD_CLIENT_ID = os.environ["DISCORD_CLIENT_ID"]
+DISCORD_CLIENT_SECRET = os.environ["DISCORD_CLIENT_SECRET"]
+DISCORD_REDIRECT_URI = os.environ.get("DISCORD_REDIRECT_URI", "https://yourdomain.com/callback")
 
 oauth.register(
     name="discord",
@@ -20,7 +19,7 @@ oauth.register(
     client_kwargs={"scope": "identify"},
 )
 
-ADMIN_IDS = [123456789012345678]  # Replace with your actual Discord admin IDs
+ADMIN_IDS = [912376040142307419]  # Remplace par tes vrais IDs Discord admin
 
 @authy.route("/login")
 async def login():
