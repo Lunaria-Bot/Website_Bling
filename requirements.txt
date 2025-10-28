@@ -1,7 +1,5 @@
 quart
-gunicorn
-uvicorn
+authlib
 asyncpg
-jinja2
-werkzeug
-aiohttp>=3.9.0
+python-dotenv
+gunicorn
