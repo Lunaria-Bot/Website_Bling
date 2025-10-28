@@ -1,19 +1,27 @@
 {% extends "base.html" %}
 {% block title %}Inventaire{% endblock %}
+
 {% block content %}
 <div class="container">
   <h1 class="page-title">📦 Inventaire</h1>
+
+  {% if cards %}
   <div class="row">
     {% for card in cards %}
-    <div class="col-md-4 mb-4">
+    <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
       <div class="glass-card p-3 h-100">
-        <img src="{{ card.image_url }}" class="img-fluid rounded mb-2">
-        <h5>{{ card.character_name }} <small class="text-muted">({{ card.form }})</small></h5>
-        <p><em>{{ card.series }}</em></p>
-        <p>XP: {{ card.xp }} | ❤️ {{ card.health }} | 🗡️ {{ card.attack }} | 💨 {{ card.speed }}</p>
+        <img src="{{ card.image_url }}" class="img-fluid rounded mb-2" alt="{{ card.character_name }}">
+        <h5 class="mb-1">{{ card.character_name }} <small class="text-muted">({{ card.form }})</small></h5>
+        <p class="mb-1"><em>{{ card.series }}</em></p>
+        <p class="mb-0">XP: {{ card.xp }} | ❤️ {{ card.health }} | 🗡️ {{ card.attack }} | 💨 {{ card.speed }}</p>
       </div>
     </div>
     {% endfor %}
   </div>
+  {% else %}
+  <div class="alert alert-secondary text-center mt-4">
+    Tu n’as encore aucune carte dans ton inventaire.
+  </div>
+  {% endif %}
 </div>
 {% endblock %}
