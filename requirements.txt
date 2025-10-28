@@ -1,5 +1,4 @@
 quart
-authlib
-asyncpg
-python-dotenv
 hypercorn
+authlib[client]
+asyncpg
