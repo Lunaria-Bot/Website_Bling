@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Mon Équipe{% endblock %}
+{% block content %}
+<div class="container">
+  <h1 class="page-title">🧑‍🤝‍🧑 Équipe Actuelle</h1>
+  <div class="row">
+    {% for member in team %}
+    <div class="col-md-4 mb-4">
+      <div class="glass-card p-3 h-100">
+        <img src="{{ member.image_url }}" class="img-fluid rounded mb-2">
+        <h5>{{ member.character_name }} <small class="text-muted">({{ member.form }})</small></h5>
+        <p><em>{{ member.series }}</em></p>
+        <p>Slot: {{ member.slot }} {% if member.is_captain %}⭐ Capitaine{% endif %}</p>
+        <p>XP: {{ member.xp }} | ❤️ {{ member.health }} | 🗡️ {{ member.attack }} | 💨 {{ member.speed }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
