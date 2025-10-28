@@ -133,7 +133,7 @@
         </a>
       </li>
       <li class="nav-item mt-3">
-        <a class="nav-link text-danger" href="{{ url_for('logout') }}">
+        <a class="nav-link text-danger" href="{{ url_for('authy.logout') }}">
           <i class="fas fa-sign-out-alt me-2"></i> Logout
         </a>
       </li>
@@ -145,18 +145,18 @@
   <div class="header-bar">
     <div class="container-fluid d-flex justify-content-between align-items-center flex-wrap gap-3">
       <div class="logo">Warp Gate</div>
-      {% if session.username %}
+      {% if session.discord_id %}
         <div class="d-flex align-items-center gap-2">
           <img src="{{ session.avatar_url }}" class="rounded-circle" width="32" height="32">
           <div class="text-muted small">
             {{ session.username }} —
-            <a href="{{ url_for('logout') }}" class="text-danger text-decoration-none ms-2">
+            <a href="{{ url_for('authy.logout') }}" class="text-danger text-decoration-none ms-2">
               <i class="fas fa-sign-out-alt"></i> Logout
             </a>
           </div>
         </div>
       {% else %}
-        <a href="{{ url_for('login') }}" class="btn btn-sm btn-primary ms-auto">
+        <a href="{{ url_for('authy.login') }}" class="btn btn-sm btn-primary ms-auto">
           <i class="fab fa-discord me-1"></i> Login with Discord
         </a>
       {% endif %}
@@ -175,4 +175,3 @@
   {% block scripts %}{% endblock %}
 </body>
 </html>
-
