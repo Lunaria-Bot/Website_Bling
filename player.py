@@ -4,7 +4,7 @@ import asyncpg
 player_bp = Blueprint("player", __name__)
 
 # Replace with your actual DB pool
-db_pool: asyncpg.pool.Pool = None
+db_pool = None  # sera injecté par app.py
 
 def require_login():
     if not session.get("discord_id"):
