@@ -58,7 +58,7 @@
             <img src="{{ card.image_url }}" class="img-fluid mb-2" style="max-height: 180px;">
             <p class="text-light mb-1">{{ card.character_name }}</p>
             <p class="text-muted mb-2"><strong>Origin:</strong> {{ card.series or "—" }}</p>
-            <form method="POST" action="{{ url_for('remove_card_from_player') }}">
+            <form method="POST" action="{{ url_for('admin.remove_card_from_player') }}">
               <input type="hidden" name="card_id" value="{{ card.id }}">
               <input type="hidden" name="discord_id" value="{{ player.discord_id }}">
               <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
@@ -79,7 +79,7 @@
   {% if all_cards %}
     <div class="row justify-content-center mb-5">
       <div class="col-lg-6 col-md-8" data-aos="fade-up">
-        <form method="POST" action="{{ url_for('add_card_to_player') }}" class="glass-card p-4">
+        <form method="POST" action="{{ url_for('admin.add_card_to_player') }}" class="glass-card p-4">
           <input type="hidden" name="player_id" value="{{ player.id }}">
           <input type="hidden" name="discord_id" value="{{ player.discord_id }}">
           <div class="mb-3">
