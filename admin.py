@@ -1,10 +1,13 @@
-from quart import Blueprint, render_template, request
+from quart import Blueprint, render_template, request, current_app
+from utils.dashboard_data import dashboard_data
 
 admin_bp = Blueprint("admin", __name__)
 
 @admin_bp.route("/dashboard")
 async def admin_dashboard():
-    return await render_template("admin_dashboard.html")
+    pool = current_app.config["DB_POOL"]
+    stats = await dashboard_data(pool)
+    return await render_template("admin_dashboard.html", stats=stats)
 
 @admin_bp.route("/add", methods=["GET", "POST"])
 async def add_card():
@@ -61,24 +64,25 @@ async def edit_user(user_id):
 # Form actions
 @admin_bp.route("/delete", methods=["POST"])
 async def delete_card():
-    card_id = (await request.form).get("card_id")
-    # Logic here...
-    return "Deleted"
+    form = await request.form
+    card_id = form.get("card_id")
+    # TODO: delete logic
+    return f"Deleted card {card_id}"
 
 @admin_bp.route("/process", methods=["POST"])
 async def process_card():
     form = await request.form
     card_id = form.get("card_id")
     action = form.get("action")
-    # Logic here...
-    return f"{action} card {card_id}"
+    # TODO: process logic
+    return f"{action.capitalize()} card {card_id}"
 
 @admin_bp.route("/remove_card", methods=["POST"])
 async def remove_card_from_player():
     form = await request.form
     card_id = form.get("card_id")
     discord_id = form.get("discord_id")
-    # Logic here...
+    # TODO: removal logic
     return f"Removed card {card_id} from {discord_id}"
 
 @admin_bp.route("/assign_card", methods=["POST"])
@@ -86,5 +90,5 @@ async def add_card_to_player():
     form = await request.form
     card_id = form.get("card_id")
     discord_id = form.get("discord_id")
-    # Logic here...
+    # TODO: assign logic
     return f"Assigned card {card_id} to {discord_id}"
