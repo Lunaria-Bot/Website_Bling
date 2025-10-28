@@ -1,4 +1,4 @@
 quart
 hypercorn
-authlib==1.0.0
+httpx
 asyncpg
