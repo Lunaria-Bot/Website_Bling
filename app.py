@@ -4,6 +4,7 @@ from player import player_bp
 from admin import admin_bp
 import os
 from dotenv import load_dotenv
+from player import player_bp
 
 load_dotenv()
 
@@ -14,6 +15,7 @@ app.secret_key = os.getenv("SECRET_KEY", "warp-gate-secret")
 app.register_blueprint(auth_bp)
 app.register_blueprint(player_bp)
 app.register_blueprint(admin_bp)
+app.register_blueprint(player_bp)
 
 @app.route("/")
 async def home():
