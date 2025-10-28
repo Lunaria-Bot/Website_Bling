@@ -4,7 +4,9 @@ from player import player_bp
 from admin import admin_bp
 import os
 from dotenv import load_dotenv
+from db import init_db, db_pool
 from player import player_bp
+
 
 load_dotenv()
 
@@ -20,6 +22,11 @@ app.register_blueprint(player_bp)
 @app.route("/")
 async def home():
     return await render_template("base.html")
+
+@app.before_serving
+async def startup():
+    await init_db()
+    player_bp.db_pool = db_pool  # injecte le pool dans player.py
 
 if __name__ == "__main__":
     app.run(debug=True)
