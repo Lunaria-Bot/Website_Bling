@@ -8,22 +8,22 @@
       <h5 class="text-light mb-4">Navigation</h5>
       <ul class="nav flex-column">
         <li class="nav-item mb-2">
-          <a class="nav-link text-light" href="{{ url_for('admin_dashboard') }}">
+          <a class="nav-link text-light" href="{{ url_for('admin.admin_dashboard') }}">
             <i class="fas fa-chart-pie me-2"></i> Dashboard
           </a>
         </li>
         <li class="nav-item mb-2">
-          <a class="nav-link text-light fw-bold text-primary" href="{{ url_for('add_card') }}">
+          <a class="nav-link text-light fw-bold text-primary" href="{{ url_for('admin.add_card') }}">
             <i class="fas fa-plus me-2"></i> Add Card
           </a>
         </li>
         <li class="nav-item mb-2">
-          <a class="nav-link text-light" href="{{ url_for('upload_image') }}">
+          <a class="nav-link text-light" href="{{ url_for('admin.upload_image') }}">
             <i class="fas fa-upload me-2"></i> Upload Image
           </a>
         </li>
         <li class="nav-item mb-2">
-          <a class="nav-link text-light" href="{{ url_for('history') }}">
+          <a class="nav-link text-light" href="{{ url_for('admin.history') }}">
             <i class="fas fa-clock me-2"></i> History
           </a>
         </li>
@@ -37,7 +37,7 @@
   <div class="col-md-9">
     <h1 class="page-title" data-aos="fade-down">Add a New Card</h1>
 
-    <form method="POST" action="{{ url_for('add_card') }}">
+    <form method="POST" action="{{ url_for('admin.add_card') }}">
       <div class="glass-card p-4" data-aos="fade-up">
         <div class="mb-3">
           <label for="base_name" class="form-label text-light">Character Name</label>
