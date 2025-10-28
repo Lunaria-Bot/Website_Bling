@@ -1,4 +1,4 @@
 quart
 hypercorn
-authlib[client]  # OAuth for Discord
+authlib==1.0.0
 asyncpg
