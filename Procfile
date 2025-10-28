@@ -1,1 +1,1 @@
-web: gunicorn app:app -k quart.worker.AsyncWorker
+web: hypercorn app:app --bind 0.0.0.0:8080
