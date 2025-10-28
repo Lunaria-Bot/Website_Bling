@@ -8,27 +8,20 @@ from player import player_bp
 app = Quart(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.environ.get("SECRET_KEY", "dev-key")
 
-# PostgreSQL config (Railway)
 DATABASE_URL = "postgresql://postgres:ZGCrcbXKKjCIudreaDNqhjagjvfEOIFa@postgres.railway.internal:5432/railway"
-
-# Global pool reference
-db_pool = None
 
 @app.before_serving
 async def startup():
-    global db_pool
-    db_pool = await asyncpg.create_pool(
+    pool = await asyncpg.create_pool(
         dsn=DATABASE_URL,
         min_size=1,
         max_size=5
     )
-    # Inject pool into blueprints
-    player_bp.db_pool = db_pool
-    admin_bp.db_pool = db_pool
+    app.config["DB_POOL"] = pool  # ✅ injecté ici
 
 @app.after_serving
 async def shutdown():
-    await db_pool.close()
+    await app.config["DB_POOL"].close()
 
 # Register blueprints
 app.register_blueprint(authy)
